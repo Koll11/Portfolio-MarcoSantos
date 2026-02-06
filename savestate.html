@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Log | Marco Santos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- TEMA VISUAL DO OPERADOR --- */
+        :root {
+            --bg-deep: #020617;       /* Fundo Principal */
+            --bg-panel: #0F172A;      /* Painéis */
+            --neon-blue: #00F0FF;     /* Destaque */
+            --text-white: #F8FAFC;    /* Texto Leitura */
+            --text-dim: #94A3B8;      /* Texto Secundário */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-white);
+            line-height: 1.6;
+            cursor: crosshair; /* Manter a mira */
+        }
+
+        /* GRID DE FUNDO (Igual ao Index) */
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1; pointer-events: none;
+        }
+
+        /* --- HEADER DE NAVEGAÇÃO --- */
+        .log-header {
+            background: rgba(2, 6, 23, 0.95);
+            border-bottom: 1px solid var(--neon-blue);
+            padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .brand { 
+            font-family: 'Rajdhani'; font-weight: 800; font-style: italic; font-size: 1.5rem; 
+            text-transform: uppercase; color: var(--text-white);
+        }
+        .brand span { color: var(--neon-blue); }
+
+        .back-btn {
+            text-decoration: none; 
+            color: var(--bg-deep); background: var(--neon-blue);
+            font-weight: 800; font-family: 'Rajdhani'; text-transform: uppercase;
+            padding: 10px 25px; 
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: 0.3s;
+        }
+        .back-btn:hover { 
+            background: white; box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* --- CONTENTOR PRINCIPAL (O DOCUMENTO) --- */
+        .container { 
+            max-width: 900px; margin: 60px auto; padding: 40px; 
+            background: rgba(15, 23, 42, 0.6); /* Painel semi-transparente */
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            position: relative;
+        }
+
+        /* Cantos decorativos do painel */
+        .container::before {
+            content: ''; position: absolute; top: -1px; left: -1px; 
+            width: 20px; height: 20px; 
+            border-top: 2px solid var(--neon-blue); border-left: 2px solid var(--neon-blue);
+        }
+        .container::after {
+            content: ''; position: absolute; bottom: -1px; right: -1px; 
+            width: 20px; height: 20px; 
+            border-bottom: 2px solid var(--neon-blue); border-right: 2px solid var(--neon-blue);
+        }
+
+        /* --- TIPOGRAFIA --- */
+        h1 { 
+            font-family: 'Rajdhani'; font-size: 3.5rem; font-weight: 900; 
+            line-height: 1; margin-bottom: 10px; text-transform: uppercase; 
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        
+        .subtitle { 
+            color: var(--neon-blue); font-weight: 700; font-family: 'Rajdhani'; 
+            font-size: 1.2rem; margin-bottom: 40px; letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
+        }
+
+        h2 { 
+            font-family: 'Rajdhani'; font-size: 2rem; margin-top: 60px; margin-bottom: 20px; 
+            color: var(--text-white); border-left: 4px solid var(--neon-blue); padding-left: 15px;
+            text-transform: uppercase;
+        }
+        
+        p { margin-bottom: 20px; color: #CBD5E1; font-size: 1.1rem; }
+
+        /* --- CAIXAS TÉCNICAS (Desafios) --- */
+        .tech-box {
+            background: rgba(2, 6, 23, 0.8); 
+            border: 1px solid #334155; 
+            padding: 30px; margin: 30px 0;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Linha decorativa lateral */
+        .tech-box::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--neon-blue);
+        }
+
+        .tech-label {
+            font-family: 'Rajdhani'; font-weight: 800; color: var(--neon-blue);
+            text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;
+            margin-bottom: 5px; display: block;
+        }
+
+        /* --- IMAGENS DENTRO DO POST --- */
+        .project-img {
+            width: 100%; height: auto; border: 1px solid #334155;
+            margin: 20px 0; filter: grayscale(20%); transition: 0.3s;
+        }
+        .project-img:hover { filter: grayscale(0%); border-color: var(--neon-blue); }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            .container { padding: 20px; margin: 20px; }
+            h1 { font-size: 2.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+
+    <header class="log-header">
+        <div class="brand">MISSION <span>LOG</span></div>
+        <a href="index.html" class="back-btn">RETURN TO BASE</a>
+    </header>
+
+    <article class="container">
+        
+        <h1>SAVE STATE</h1>
+        <div class="subtitle">UNREAL ENGINE 5 // C++ // PHYSICS PUZZLE</div>
+
+        <p><strong>MISSION BRIEFING:</strong> O Save State é um jogo de puzzles na primeira pessoa onde o jogador tem de reparar máquinas complexas. O twist mecânico é a validação física precisa: as peças não "encaixam" sozinhas por magia, elas têm de estar alinhadas e aparafusadas corretamente.</p>
+
+        <h2>/// TECHNICAL CHALLENGE: SOCKET SYSTEM</h2>
+        
+        <div class="tech-box">
+            <span class="tech-label">PROBLEM DETECTED</span>
+            <p>O sistema de 'Attachment' nativo do Unreal era demasiado simples. As peças atravessavam-se umas às outras (clipping) e não havia sensação de peso ou resistência ao encaixar.</p>
+            
+            <br>
+            
+            <span class="tech-label">SOLUTION DEPLOYED</span>
+            <p>Desenvolvi um sistema de <strong>Socket Validation em C++</strong>. Criei uma classe `AMechanicPart` que verifica a colisão antes de permitir o encaixe. Usei `SweepSingleByChannel` para prever se a peça vai bater em algo antes de chegar ao destino, criando uma física "snappy" mas realista.</p>
+        </div>
+
+        <h2>/// ARCHITECTURE & SCALABILITY</h2>
+        <p>Para garantir que podíamos criar 50 puzzles diferentes sem reescrever código, utilizei <strong>Data Assets</strong>. Cada máquina é definida por um Data Asset que lista quais as peças necessárias e as suas posições.</p>
+        <p>Isto permitiu aos Game Designers criar níveis novos sem tocar numa linha de C++.</p>
+
+        <h2>/// MISSION DEBRIEF</h2>
+        <p>Este projeto fortaleceu o meu conhecimento em C++ puro e matemática vetorial (Dot Products foram essenciais para calcular o alinhamento das peças). O resultado final é um sistema robusto que pode ser reutilizado em qualquer jogo de simulação mecânica.</p>
+
+    </article>
+
+</body>
+</html>

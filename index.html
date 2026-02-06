@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco Santos | Portfolio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #050505;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* Alinha o boneco ao fundo */
+        }
+
+        /* 1. A LUZ (CORRIGIDA PARA SER REDONDA) */
+        .spotlight {
+            position: absolute;
+            top: 50%; left: 50%;
+            /* Centrado absoluto */
+            transform: translate(-50%, -50%);
+            /* Tamanho fixo para garantir que é um círculo e não um quadrado esticado */
+            width: 800px;
+            height: 800px;
+            /* O gradiente agora morre para transparente mais cedo (60%) para não veres as bordas */
+            background: radial-gradient(circle, rgba(30, 50, 200, 0.5) 0%, rgba(0,0,0,0) 65%);
+            border-radius: 50%; /* Garante círculo perfeito */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 2. O TEXTO (ATRÁS) */
+        .hero-title {
+            position: absolute;
+            /* Posicionamento Base */
+            top: 45%; left: 50%;
+            /* O JS vai controlar o transform, mas começamos centrados */
+            transform: translate(-50%, -50%);
+            
+            font-size: 18vw; 
+            line-height: 0.8;
+            margin: 0;
+            text-align: center;
+            color: #ffffff;
+            z-index: 2; 
+            white-space: nowrap;
+            text-shadow: 0 0 30px rgba(0,0,0,0.5);
+            
+            /* Garante que o texto não seleciona enquanto mexes o rato */
+            user-select: none;
+        }
+
+        /* 3. A SILHUETA (CORRIGIDA) */
+        .character-container {
+            position: relative;
+            z-index: 1; /* À frente do texto */
+            height: 90vh;
+            width: auto;
+            display: flex;
+            align-items: flex-end;
+            pointer-events: none; /* Deixa o rato passar para o fundo se preciso */
+        }
+
+        .character-img {
+            height: 100%;
+            width: auto;
+            /* Como já usas a foto silhueta, isto é só para garantir que funde bem */
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.9)); 
+        }
+
+        /* 4. CARGO TÉCNICO */
+        .role-badge {
+            position: absolute;
+            bottom: 50px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 3; /* No topo de tudo */
+            font-family: 'JetBrains Mono', monospace;
+            
+            /* REMOVIDO: background, border, backdrop-filter, padding */
+            color: #00f0ff; /* Azul Neon */
+            font-size: 1rem; /* Ligeiramente maior */
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); /* Brilho suave */
+            user-select: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="spotlight"></div>
+
+    <h1 class="hero-title">MARCO<br>SANTOS</h1>
+
+    <div class="character-container">
+        <img src="Fotos/Foto2Silhueta.png" class="character-img" alt="Marco Silhouette">
+    </div>
+
+    <div class="role-badge">GAMEPLAY PROGRAMMER</div>
+
+    <script>
+        // SELETORES
+        const title = document.querySelector('.hero-title');
+        const char = document.querySelector('.character-img');
+        const light = document.querySelector('.spotlight');
+
+        // VARIÁVEIS PARA SUAVIZAÇÃO
+        // O rato mexe, mas o GSAP demora a chegar lá (isso cria a suavidade)
+        document.addEventListener('mousemove', (e) => {
+            
+            // Calcula a posição do rato (-0.5 a 0.5)
+            const x = (e.clientX / window.innerWidth - 0.5);
+            const y = (e.clientY / window.innerHeight - 0.5);
+
+            // ANIMAÇÃO SUAVE (GSAP)
+            // duration: 1.5 faz com que demore 1.5s a chegar à posição final (efeito "peso")
+            
+            // 1. O Texto mexe-se LIGEIRAMENTE na direção oposta (Profundidade)
+            gsap.to(title, {
+                x: x * 30, // Mexe 30px
+                y: y * 20, 
+                xPercent: -50, // FORÇA O CENTRO (Mantém o alinhamento)
+                yPercent: -50, // FORÇA O CENTRO
+                duration: 1.5, 
+                ease: "power2.out"
+            });
+            
+            // 2. A Luz mexe-se bastante (para parecer dinâmica)
+            gsap.to(light, {
+                x: -x * 60, // Oposto ao rato
+                y: -y * 60,
+                xPercent: -50, // Também tranca a luz no centro
+                yPercent: -50,
+                duration: 2, // Mais lento que o texto
+                ease: "power2.out"
+            });
+            
+            // 3. A Silhueta mexe-se MUITO POUCO (Para parecer sólida/perto)
+            gsap.to(char, {
+                x: x * 15,
+                y: y * 10,
+                duration: 1.2,
+                ease: "power2.out"
+            });
+        });
+    </script>
+</body>
+</html>
