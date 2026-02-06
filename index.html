@@ -12,24 +12,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
-        /* --- 1. BASE & FADE IN --- */
+        /* --- 1. BASE --- */
         body {
             margin: 0; padding: 0;
             background-color: #050505;
             color: white;
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            
-            /* FADE IN INICIAL */
-            opacity: 0; 
-            animation: fadeInPage 1.5s ease-out forwards;
+            overflow-x: hidden; /* Importante para o scroll horizontal não criar barra em baixo */
+            opacity: 0; animation: fadeInPage 1.5s ease-out forwards;
         }
 
-        @keyframes fadeInPage {
-            to { opacity: 1; }
-        }
+        @keyframes fadeInPage { to { opacity: 1; } }
 
-        /* --- 2. HERO WRAPPER --- */
+        /* --- 2. HERO WRAPPER (INTRO) --- */
         .hero-wrapper {
             height: 100vh;
             width: 100%;
@@ -38,124 +33,126 @@
             justify-content: center;
             align-items: flex-end;
             overflow: hidden;
+            z-index: 10; /* Fica por cima inicialmente */
         }
 
-        /* --- 3. ELEMENTOS VISUAIS --- */
-        
-        /* Luz */
+        /* Elementos da Intro (Iguais ao anterior) */
         .spotlight {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px; height: 800px;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 800px; height: 800px; border-radius: 50%; pointer-events: none; z-index: 0;
             background: radial-gradient(circle, rgba(30, 50, 200, 0.5) 0%, rgba(0,0,0,0) 65%);
-            border-radius: 50%;
-            z-index: 0; 
-            pointer-events: none;
         }
-
-        /* Silhueta */
         .character-container {
-            position: relative;
-            z-index: 1; 
-            height: 90vh;
-            width: auto;
-            display: flex;
-            align-items: flex-end;
-            pointer-events: none;
-            will-change: transform; 
+            position: relative; z-index: 1; height: 90vh; width: auto;
+            display: flex; align-items: flex-end; pointer-events: none; will-change: transform;
         }
-
-        .character-img {
-            height: 100%;
-            width: auto;
-            filter: drop-shadow(0 0 15px rgba(0,0,0,0.9));
-        }
-
-        /* Texto */
+        .character-img { height: 100%; width: auto; filter: drop-shadow(0 0 15px rgba(0,0,0,0.9)); }
         .hero-title {
-            position: absolute;
-            top: 45%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 18vw;
-            line-height: 0.8;
-            margin: 0;
-            text-align: center;
-            color: #ffffff;
-            z-index: 2; 
-            white-space: nowrap;
-            text-shadow: 0 0 30px rgba(0,0,0,0.5);
-            user-select: none;
+            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 18vw; line-height: 0.8; margin: 0; text-align: center; color: #ffffff;
+            z-index: 2; white-space: nowrap; text-shadow: 0 0 30px rgba(0,0,0,0.5); user-select: none;
         }
-
-        /* Cargo */
         .role-badge {
-            position: absolute;
-            bottom: 50px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 3;
-            font-family: 'JetBrains Mono', monospace;
-            color: #00f0ff;
-            font-size: 1rem;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-            user-select: none;
+            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+            z-index: 3; font-family: 'JetBrains Mono', monospace; color: #00f0ff;
+            font-size: 1rem; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); user-select: none;
         }
-
-        /* --- 4. PROFILE CARD (ATUALIZADO SEM NÚMEROS) --- */
+        /* Card FM */
         .profile-card {
-            position: absolute;
-            top: 50%; 
-            right: 15%; /* Ajustei um pouco para não ficar tão colado */
-            transform: translateY(-50%);
-            width: 350px;
-            opacity: 0; 
-            z-index: 4;
-            font-family: 'JetBrains Mono', monospace;
+            position: absolute; top: 50%; right: 15%; transform: translateY(-50%);
+            width: 350px; opacity: 0; z-index: 4; font-family: 'JetBrains Mono', monospace;
         }
-
-        .profile-header {
-            border-bottom: 2px solid #00f0ff;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
+        .profile-header { border-bottom: 2px solid #00f0ff; margin-bottom: 20px; padding-bottom: 10px; }
         .profile-name { font-size: 1.5rem; font-weight: 700; color: white; }
         .profile-sub { font-size: 0.8rem; color: #888; letter-spacing: 2px; }
-
-        /* NOVA LISTA DE SKILLS (TAGS) */
-        .skills-list {
-            display: flex;
-            flex-wrap: wrap; /* Permite que caiam para a linha de baixo */
-            gap: 10px;
-        }
-
+        .skills-list { display: flex; flex-wrap: wrap; gap: 10px; }
         .skill-tag {
-            background: rgba(0, 240, 255, 0.1); /* Fundo azul muito transparente */
-            border: 1px solid #00f0ff; /* Borda Neon */
-            color: #00f0ff;
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            border-radius: 4px; /* Cantos ligeiramente arredondados */
-            box-shadow: 0 0 5px rgba(0, 240, 255, 0.1);
+            background: rgba(0, 240, 255, 0.1); border: 1px solid #00f0ff; color: #00f0ff;
+            padding: 8px 12px; font-size: 0.9rem; font-weight: bold; border-radius: 4px;
         }
 
-        /* Espaçador */
-        .scroll-spacer {
-            height: 100vh;
-            background: #050505;
+        /* --- 3. NOVA SECÇÃO: PROJETOS (HORIZONTAL) --- */
+        .projects-section {
+            width: 100%;
+            height: 100vh; /* Ocupa o ecrã todo */
+            background-color: #020202; /* Um pouco mais escuro para contraste */
+            display: flex;
+            align-items: center;
+            overflow: hidden; /* Esconde o que está fora do ecrã */
+            position: relative;
+            z-index: 5;
         }
+
+        .section-header {
+            position: absolute;
+            top: 50px; left: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 2rem;
+            color: #333;
+            text-transform: uppercase;
+            font-weight: 900;
+            z-index: 20;
+        }
+
+        /* O contentor comprido que vai deslizar */
+        .horizontal-wrapper {
+            display: flex;
+            gap: 100px; /* Espaço entre cartões */
+            padding-left: 10vw; /* Começa um pouco à direita */
+            padding-right: 10vw;
+        }
+
+        /* O Cartão do Jogo */
+        .game-card {
+            width: 60vw; /* Largura grande */
+            max-width: 800px;
+            height: 70vh;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+            overflow: hidden;
+            flex-shrink: 0; /* Impede que encolham */
+        }
+
+        .game-card:hover { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
+
+        /* Imagem do Jogo */
+        .game-image {
+            height: 70%;
+            width: 100%;
+            background-color: #151515; /* Cor de fundo caso não tenhas img ainda */
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid #333;
+        }
+
+        /* Info do Jogo */
+        .game-info {
+            padding: 30px;
+            height: 30%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .game-number { color: #00f0ff; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 10px; }
+        .game-title { font-family: 'Inter', sans-serif; font-size: 2.5rem; font-weight: 900; margin: 0; color: white; text-transform: uppercase; }
+        .game-tags { margin-top: 10px; color: #666; font-size: 0.9rem; }
+
     </style>
 </head>
 <body>
 
     <div class="hero-wrapper">
         <div class="spotlight"></div>
-        
         <div class="character-container">
             <img src="Fotos/Foto2Silhueta.png" class="character-img" alt="Silhueta">
         </div>
-
         <h1 class="hero-title">MARCO<br>SANTOS</h1>
         <div class="role-badge">GAMEPLAY PROGRAMMER</div>
 
@@ -164,7 +161,6 @@
                 <div class="profile-name">MARCO SANTOS</div>
                 <div class="profile-sub">GAMEPLAY PROGRAMMER</div>
             </div>
-            
             <div class="skills-list">
                 <div class="skill-tag">UNITY</div>
                 <div class="skill-tag">UNREAL ENGINE</div>
@@ -176,12 +172,56 @@
         </div>
     </div>
 
-    <div class="scroll-spacer"></div>
+    <section class="projects-section">
+        <div class="section-header">MISSION LOG // 2024-2026</div>
+        
+        <div class="horizontal-wrapper">
+            
+            <div class="game-card">
+                <div class="game-image" style="background-image: url('caminho/para/imagem_nocturne.jpg');"></div>
+                <div class="game-info">
+                    <div class="game-number">MISSION 01</div>
+                    <h2 class="game-title">NOCTURNE BATTLEGROUNDS</h2>
+                    <div class="game-tags">MULTIPLAYER • ROBLOX • LUA</div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-image" style="background-image: url('caminho/para/imagem_cyber.jpg');"></div>
+                <div class="game-info">
+                    <div class="game-number">MISSION 02</div>
+                    <h2 class="game-title">CYBER ENGINEER</h2>
+                    <div class="game-tags">MOBILE • UNITY • C#</div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-image" style="background-image: url('caminho/para/imagem_savestate.jpg');"></div>
+                <div class="game-info">
+                    <div class="game-number">MISSION 03</div>
+                    <h2 class="game-title">SAVE STATE</h2>
+                    <div class="game-tags">COZY • UNREAL ENGINE • BLUEPRINT</div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-image" style="background-image: url('caminho/para/imagem_lusiada.jpg');"></div>
+                <div class="game-info">
+                    <div class="game-number">MISSION 04</div>
+                    <h2 class="game-title">LUSIADA-1</h2>
+                    <div class="game-tags">NARRATIVE • UNITY • C#</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div style="height: 50vh; background: #020202;"></div>
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        const wrapper = document.querySelector('.hero-wrapper');
+        // --- REFERÊNCIAS ---
         const charContainer = document.querySelector('.character-container');
         const charImg = document.querySelector('.character-img');
         const light = document.querySelector('.spotlight');
@@ -189,23 +229,22 @@
         const badge = document.querySelector('.role-badge');
         const profileCard = document.querySelector('.profile-card');
 
-        // Configuração Inicial
+        // Config Inicial
         gsap.set(title, { xPercent: -50, yPercent: -50 });
         gsap.set(light, { xPercent: -50, yPercent: -50 });
 
-        // --- 1. EFEITO RATO ---
+        // --- 1. MOUSE PARALLAX ---
         document.addEventListener('mousemove', (e) => {
-            if (window.scrollY < 50) { 
+            if (window.scrollY < 100) { 
                 const x = (e.clientX / window.innerWidth - 0.5);
                 const y = (e.clientY / window.innerHeight - 0.5);
-
                 gsap.to(title, { x: x * 30, y: y * 20, xPercent: -50, yPercent: -50, duration: 1 });
                 gsap.to(light, { x: -x * 50, y: -y * 50, xPercent: -50, yPercent: -50, duration: 1.5 });
                 gsap.to(charImg, { x: x * 15, y: y * 10, duration: 1.2 });
             }
         });
 
-        // --- 2. SCROLL TIMELINE ---
+        // --- 2. HERO ANIMATION (Intro -> Profile) ---
         let tl = gsap.timeline({
             scrollTrigger: {
                 trigger: ".hero-wrapper",
@@ -216,17 +255,30 @@
             }
         });
 
-        // Z-INDEX FIX (Evita que comece à frente)
         tl.set(charContainer, { zIndex: 10, immediateRender: false }, 0);
-
-        // ANIMAÇÕES
         tl.to(charImg, { x: -window.innerWidth * 0.25, duration: 1 }, 0);
         tl.to(light, { x: -window.innerWidth * 0.25, xPercent: -50, duration: 1 }, 0);
         tl.to(title, { y: -300, opacity: 0, duration: 0.8 }, 0);
         tl.to(badge, { opacity: 0, duration: 0.2 }, 0);
-        
-        // Card aparece
         tl.to(profileCard, { opacity: 1, x: -50, duration: 0.8 }, 0.2);
+
+        // --- 3. PROJECT SCROLL (Awwwards Style) ---
+        // Aqui está a magia do scroll horizontal
+        
+        const sections = gsap.utils.toArray(".game-card"); // Pega todos os cartões
+
+        gsap.to(sections, {
+            xPercent: -100 * (sections.length - 1), // Move tudo para a esquerda
+            ease: "none", // Movimento linear (sem aceleração/desaceleração)
+            scrollTrigger: {
+                trigger: ".projects-section",
+                pin: true,     // Prende a secção enquanto faz scroll lateral
+                scrub: 1,      // Suavidade
+                // Calcula a duração do scroll baseado no número de cartões
+                // Quanto maior o valor (ex: +=3000), mais lento e suave é o scroll
+                end: () => "+=" + document.querySelector(".horizontal-wrapper").offsetWidth 
+            }
+        });
 
     </script>
 </body>
