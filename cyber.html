@@ -194,17 +194,26 @@
         
         <div class="section-title">01. OVERVIEW</div>
         <div class="text-block">
-            Nocturne Battlegrounds is a fast-paced multiplayer FPS set in a dystopian future. 
-            My main responsibility was designing the <strong>Weapon System</strong> and <strong>Network Replication</strong> 
-            to ensure lag-free combat for up to 32 players.
+            Cyber Engineer is a action roguelike top-down where players control a Engineer who must fight his own creations.
+            My main responsibility was implementing the <strong>Upgrade System</strong> and <strong> Spawn Multiple Enemy AI</strong>
+            to ensure a balanced and engaging gameplay experience.     
         </div>
 
         <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
 
-        <div class="section-title">02. TECHNICAL CHALLENGE: REWIND SYSTEM</div>
+        <div class="section-title">02. TECHNICAL CHALLENGE: UPGRADE SYSTEM</div>
         <div class="text-block">
-            Creating a lag-compensation system for hit detection was crucial. I implemented a server-side rewind system 
-            that stores player positions in a circular buffer.
+            Implemented a system where, whenever the player levels up, three cards appear, each representing a different upgrade class. 
+            The available classes are: Character, Weapon and Gadgets. I organized all the upgrades in a main array and used auxiliary lists to control the 
+            upgrades still available in each class and type.
+        </div>
+
+                <div class="section-title">02. TECHNICAL CHALLENGE: SPAWN MULTIPLE ENEMY AI</div>
+        <div class="text-block">
+            Implemented a system where, over 20 waves, only specific enemy types appear in certain phases.
+            I created a dedicated method to update the current wave settings, where I define which enemies should be included or excluded based on the wave.
+            The logic uses simple conditions to decide what enemy type to spawn, and also sets maximum limits per type, ensuring diversity and difficulty control. 
+            The spawn location is calculated based on the player's position, but always within a safe distance and within the allowed zone.
         </div>
 
         <div class="code-block">

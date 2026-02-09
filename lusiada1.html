@@ -15,8 +15,8 @@
         /* --- 1. VARIÁVEIS DO PROJETO (SÓ MUDAS ISTO AQUI) --- */
         :root {
             /* MUDAR ESTA COR EM CADA FICHEIRO */
-            --project-color: rgba(1, 78, 2, 1); /* Vermelho para Nocturne */
-            --project-glow: rgb(189, 0, 0);
+            --project-color: rgba(51, 38, 39, 1); /* Vermelho para Nocturne */
+            --project-glow: rgb(112, 69, 72);
         }
 
         /* --- 2. BASE --- */
@@ -194,17 +194,20 @@
         
         <div class="section-title">01. OVERVIEW</div>
         <div class="text-block">
-            Nocturne Battlegrounds is a fast-paced multiplayer FPS set in a dystopian future. 
-            My main responsibility was designing the <strong>Weapon System</strong> and <strong>Network Replication</strong> 
-            to ensure lag-free combat for up to 32 players.
+            Lusíada-1: Lost Signal is a space adventure game with a focus on narrative and exploration. 
+            It tells the story of a man who embarks on an intergalactic mission, leaving behind his family. 
+            My main responsibility was working with the <strong>Lighting</strong> and <strong>Camera</strong> 
+            to ensure the visual storytelling was compelling and immersive.
         </div>
 
         <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
 
-        <div class="section-title">02. TECHNICAL CHALLENGE: REWIND SYSTEM</div>
+        <div class="section-title">02. TECHNICAL CHALLENGE: Lighting & Camera</div>
         <div class="text-block">
-            Creating a lag-compensation system for hit detection was crucial. I implemented a server-side rewind system 
-            that stores player positions in a circular buffer.
+            Created an immersive and dark space atmosphere, with moments of intense light when passing through zones like nebulae or supernovas.
+            Made important events (like collisions or planetary approaches) more impactful and cinematic.
+            Used GameObjects with Light2D and Global Light components that move with visual elements.
+            To make the lighting interact realistically with the ship, I applied a Normal Map.
         </div>
 
         <div class="code-block">

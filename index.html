@@ -95,7 +95,7 @@
         .role-badge {
             position: absolute; 
             bottom: 120px; /* Mudado de 50px para 120px para dar espaço à seta */
-            left: 50%; 
+            left: 22%; 
             transform: translateX(-50%);
             z-index: 3; 
             font-family: 'JetBrains Mono', monospace; 
@@ -162,6 +162,23 @@
             width: max-content;
         }
 
+        /* NOVO: Estilo para os Links (<a>) que envolvem os cartões */
+        .horizontal-wrapper > a {
+            display: block;        /* Comporta-se como uma caixa */
+            text-decoration: none; /* Remove sublinhados */
+            flex-shrink: 0;        /* Impede que encolham */
+            outline: none;
+        }
+
+        /* As margens de alinhamento passam para os LINKS */
+        .horizontal-wrapper > a:first-child {
+            margin-left: 20vw; /* Empurra o primeiro link */
+        }
+
+        .horizontal-wrapper > a:last-child {
+            margin-right: 20vw; /* Dá espaço ao último link */
+        }
+
         /* O Cartão do Jogo */
         .game-card {
             width: 60vw; /* Largura grande */
@@ -180,6 +197,7 @@
             z-index: 10; /* Garante que fica à frente das partículas */
             will-change: transform;
             background: rgba(10, 10, 10, 0.95); /* Ligeiramente transparente para ver o glow */
+            margin: 0 !important;
         }
 
         .game-card:first-child {
@@ -394,7 +412,7 @@
     .scroll-hint {
         position: absolute; 
         bottom: 30px; 
-        left: 50%; 
+        left: 22%; 
         transform: translateX(-50%);
         display: flex; 
         flex-direction: column; 
@@ -469,7 +487,7 @@
         <div class="horizontal-wrapper">
 
             <a href="nocturne.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(107, 38, 36, 1)"> <div class="game-image" style="background-image: url('NocturneBattlegrounds/logo.png');"></div>
+            <div class="game-card" data-color="rgba(131, 65, 62, 1)"> <div class="game-image" style="background-image: url('NocturneBattlegrounds/logo.png');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 01</div>
                     <h2 class="game-title">NOCTURNE BATTLEGROUNDS</h2>
@@ -479,7 +497,7 @@
             </a>
 
             <a href="cyber.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(7, 115, 205, 1)">
+            <div class="game-card" data-color="rgba(7, 115, 205, 0.6)">
                 <div class="game-image" style="background-image: url('CyberEngineer/CyberEnginner.png');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 02</div>
@@ -501,7 +519,7 @@
             </a>
 
             <a href="lusiada1.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(1, 78, 2, 1)">
+            <div class="game-card" data-color="rgba(51, 38, 39, 1)">
                 <div class="game-image" style="background-image: url('Lusiada-1/Lusiada1.png');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 04</div>
@@ -642,10 +660,17 @@
         const cards = gsap.utils.toArray(".game-card");
 
         function getScrollAmount() {
-            let lastCard = cards[cards.length - 1];
-            let lastCardCenter = lastCard.offsetLeft + (lastCard.offsetWidth / 2);
-            let centerScreen = window.innerWidth / 2;
-            return -(lastCardCenter - centerScreen);
+                // Seleciona o último cartão
+                let lastCard = cards[cards.length - 1];
+                
+                // CORREÇÃO: Pegamos no PAI do cartão (o link <a>) para saber a posição real na régua
+                let parentLink = lastCard.parentElement; 
+                
+                // Calculamos o centro baseados no Link, não no cartão interior
+                let lastLinkCenter = parentLink.offsetLeft + (parentLink.offsetWidth / 2);
+                let centerScreen = window.innerWidth / 2;
+                
+                return -(lastLinkCenter - centerScreen);
         }
 
         let projectTl = gsap.timeline({

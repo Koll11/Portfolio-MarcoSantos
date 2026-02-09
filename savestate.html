@@ -194,17 +194,25 @@
         
         <div class="section-title">01. OVERVIEW</div>
         <div class="text-block">
-            Nocturne Battlegrounds is a fast-paced multiplayer FPS set in a dystopian future. 
-            My main responsibility was designing the <strong>Weapon System</strong> and <strong>Network Replication</strong> 
-            to ensure lag-free combat for up to 32 players.
+            Save State is a puzzle game where the player manipulates objects to solve mechanical problems. 
+            The objective is to build a video game command by correctly placing pieces and respecting the logic of assembly.
+            My main responsibility was implementing the <strong>Assembly System</strong> and <strong>Progression System</strong>
+            to ensure a cohesive and intuitive player experience. 
         </div>
 
         <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
 
-        <div class="section-title">02. TECHNICAL CHALLENGE: REWIND SYSTEM</div>
+        <div class="section-title">02. TECHNICAL CHALLENGE: Assembly System</div>
         <div class="text-block">
-            Creating a lag-compensation system for hit detection was crucial. I implemented a server-side rewind system 
-            that stores player positions in a circular buffer.
+            Created a system where the player can build a command by placing multiple pieces, respecting a logical order and physical structure.
+            I used Unreal Engine's Socket system in conjunction with the AttachToComponent method to ensure each piece fits precisely and realistically into the defined points of the main command model.
+        </div>
+
+        <div class="section-title">03. TECHNICAL CHALLENGE: Progression System</div>
+        <div class="text-block">
+            Allow the player to build the command in their own way and deliver it when they want, but ensure the game can automatically evaluate 
+            if the assembly was done correctly or not. This was an interesting challenge. 
+            I implemented a validation system at delivery time that checks if all required pieces are correctly attached to their respective sockets.
         </div>
 
         <div class="code-block">

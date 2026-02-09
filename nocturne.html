@@ -167,7 +167,7 @@
         
         <div class="hero-content">
             <h1 class="project-title">NOCTURNE<br>BATTLEGROUNDS</h1>
-            <div class="project-meta">MISSION 01 // UNREAL ENGINE 5</div>
+            <div class="project-meta">MISSION 01 // ROBLOX</div>
         </div>
     </div>
 
@@ -194,37 +194,45 @@
         
         <div class="section-title">01. OVERVIEW</div>
         <div class="text-block">
-            Nocturne Battlegrounds is a fast-paced multiplayer FPS set in a dystopian future. 
-            My main responsibility was designing the <strong>Weapon System</strong> and <strong>Network Replication</strong> 
-            to ensure lag-free combat for up to 32 players.
+            Nocturne Battlegrounds is a multiplayer arena pvp game where vampires fight for supremacy in a gothic town, their greatest enemy being the sun itself.
+            My main responsibility was implementing the <strong>Combat System</strong> and <strong>Network Replication</strong> 
+            to ensure lag-free combat for up to 15 players.
         </div>
 
         <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
 
-        <div class="section-title">02. TECHNICAL CHALLENGE: REWIND SYSTEM</div>
+        <div class="section-title">02. TECHNICAL CHALLENGE: COMBAT SYSTEM</div>
         <div class="text-block">
-            Creating a lag-compensation system for hit detection was crucial. I implemented a server-side rewind system 
-            that stores player positions in a circular buffer.
+            Designing a responsive and satisfying combat system was a major challenge. 
+            I implemented a raycast system that calculates hit detection in real-time, 
+            ensuring accurate punches even at low duration hitboxes.
+        </div>
+
+        <div class="section-title">03. TECHNICAL CHALLENGE: NETWORK REPLICATION</div>
+        <div class="text-block">
+            I created a Client-server communication that creates attacks on the client and then validates them on the server, 
+            if the attack is valid, the server replicates the vfx's to all clients. This approach minimizes latency and ensures a smooth gameplay experience for all players.
         </div>
 
         <div class="code-block">
             <div class="code-header">WeaponSystem.cpp</div>
             <div class="code-content">
-<span class="keyword">void</span> <span class="function">AWeapon::Fire</span>() {
-    <span class="comment">// Calculate hit trace based on camera vector</span>
-    FHitResult Hit;
-    FVector Start = Camera->GetComponentLocation();
-    FVector End = Start + (Camera->getForwardVector() * Range);
 
-    <span class="keyword">if</span> (GetWorld()->LineTraceSingleByChannel(Hit, Start, End...)) {
-        <span class="comment">// Apply damage to actor</span>
-        ApplyDamage(Hit.GetActor(), BaseDamage);
-    }
-}
+        <span class="keyword">void</span> <span class="function">AWeapon::Fire</span>() {
+            <span class="comment">// Calculate hit trace based on camera vector</span>
+        FHitResult Hit;
+        FVector Start = Camera->GetComponentLocation();
+        FVector End = Start + (Camera->getForwardVector() * Range);
+
+        <span class="keyword">if</span> (GetWorld()->LineTraceSingleByChannel(Hit, Start, End...)) {
+            <span class="comment">// Apply damage to actor</span>
+            ApplyDamage(Hit.GetActor(), BaseDamage);
+            }
+        }
+                </div>
             </div>
-        </div>
 
-    </div>
+        </div>
 
     <a href="cyber.html" class="next-project">
         <div style="text-align: center;">
