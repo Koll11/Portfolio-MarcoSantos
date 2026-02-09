@@ -3,179 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Log | Marco Santos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Project Detail | Gameplay Programmer</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
-        /* --- TEMA VISUAL DO OPERADOR --- */
+        /* --- 1. VARIÁVEIS DO PROJETO (SÓ MUDAS ISTO AQUI) --- */
         :root {
-            --bg-deep: #020617;       /* Fundo Principal */
-            --bg-panel: #0F172A;      /* Painéis */
-            --neon-blue: #00F0FF;     /* Destaque */
-            --text-white: #F8FAFC;    /* Texto Leitura */
-            --text-dim: #94A3B8;      /* Texto Secundário */
+            /* MUDAR ESTA COR EM CADA FICHEIRO */
+            --project-color: rgba(7, 115, 205, 1); /* Vermelho para Nocturne */
+            --project-glow: rgba(15, 75, 124, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        /* --- 2. BASE --- */
         body {
+            margin: 0; padding: 0;
+            background-color: #050505;
+            color: white;
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-deep);
-            color: var(--text-white);
-            line-height: 1.6;
-            cursor: crosshair; /* Manter a mira */
+            overflow-x: hidden;
+            cursor: none;
         }
 
-        /* GRID DE FUNDO (Igual ao Index) */
-        .bg-grid {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: 
-                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1; pointer-events: none;
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--project-color); }
+
+        /* --- 3. UI COMUM (Cursor & Loading) --- */
+        .cursor-dot, .cursor-outline {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            pointer-events: none; z-index: 9999; border-radius: 50%; mix-blend-mode: difference;
+        }
+        .cursor-dot { width: 8px; height: 8px; background: var(--project-color); }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid var(--project-color); transition: 0.2s; }
+        
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center;
+        }
+        .loading-bar { width: 0%; height: 2px; background: var(--project-color); box-shadow: 0 0 15px var(--project-color); }
+
+        /* --- 4. HERO SECTION --- */
+        .project-hero {
+            height: 80vh; width: 100%; position: relative;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border-bottom: 1px solid #222; overflow: hidden;
         }
 
-        /* --- HEADER DE NAVEGAÇÃO --- */
-        .log-header {
-            background: rgba(2, 6, 23, 0.95);
-            border-bottom: 1px solid var(--neon-blue);
-            padding: 20px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-            backdrop-filter: blur(5px);
+        /* Imagem de Fundo com Blur */
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* AQUI METES A IMAGEM DO PROJETO */
+            background-image: url('caminho/para/imagem_nocturne.jpg'); 
+            background-size: cover; background-position: center;
+            opacity: 0.3; filter: blur(10px) grayscale(50%); z-index: 0;
         }
-
-        .brand { 
-            font-family: 'Rajdhani'; font-weight: 800; font-style: italic; font-size: 1.5rem; 
-            text-transform: uppercase; color: var(--text-white);
-        }
-        .brand span { color: var(--neon-blue); }
 
         .back-btn {
-            text-decoration: none; 
-            color: var(--bg-deep); background: var(--neon-blue);
-            font-weight: 800; font-family: 'Rajdhani'; text-transform: uppercase;
-            padding: 10px 25px; 
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            position: absolute; top: 40px; left: 40px; z-index: 20;
+            font-family: 'JetBrains Mono', monospace; text-decoration: none;
+            color: #888; font-size: 0.9rem; border: 1px solid #333; padding: 10px 20px;
+            background: rgba(0,0,0,0.8); transition: 0.3s;
+        }
+        .back-btn:hover { color: var(--project-color); border-color: var(--project-color); }
+
+        .hero-content {
+            z-index: 2; text-align: center;
+        }
+
+        .project-title {
+            font-size: 8vw; line-height: 0.9; text-transform: uppercase; margin: 0;
+            text-shadow: 0 0 50px var(--project-glow);
+        }
+
+        .project-meta {
+            font-family: 'JetBrains Mono', monospace; color: var(--project-color);
+            margin-top: 20px; letter-spacing: 4px; font-size: 1rem;
+        }
+
+        /* --- 5. GRID DE DADOS (STATS) --- */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1px; background: #222; border-bottom: 1px solid #222;
+        }
+        .stat-item {
+            background: #000; padding: 40px 20px; text-align: center;
+        }
+        .stat-label {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #666; margin-bottom: 10px;
+        }
+        .stat-value {
+            font-family: 'Inter', sans-serif; font-weight: bold; font-size: 1.2rem; color: white;
+        }
+
+        /* --- 6. CONTEÚDO PRINCIPAL --- */
+        .content-wrapper {
+            max-width: 900px; margin: 100px auto; padding: 0 20px;
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace; color: var(--project-color);
+            font-size: 1.5rem; margin-bottom: 30px; border-left: 3px solid var(--project-color);
+            padding-left: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        
+        .text-block {
+            font-size: 1.1rem; line-height: 1.6; color: #ccc; margin-bottom: 60px;
+        }
+
+        /* CODE BLOCK (Estilo VS Code) */
+        .code-block {
+            background: #111; border: 1px solid #333; border-radius: 8px; padding: 20px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #ddd;
+            overflow-x: auto; margin-bottom: 60px; position: relative;
+        }
+        .code-header {
+            position: absolute; top: 0; left: 0; width: 100%; background: #1a1a1a;
+            padding: 5px 15px; font-size: 0.7rem; color: #666; border-bottom: 1px solid #333;
+            box-sizing: border-box;
+        }
+        .code-content { margin-top: 25px; line-height: 1.5; }
+        .keyword { color: #c678dd; } /* Roxo */
+        .function { color: #61afef; } /* Azul */
+        .string { color: #98c379; } /* Verde */
+        .comment { color: #5c6370; font-style: italic; }
+
+        /* IMAGEM NO MEIO DO TEXTO */
+        .project-img {
+            width: 100%; border-radius: 10px; margin-bottom: 60px;
+            border: 1px solid #333;
+        }
+
+        /* --- 7. FOOTER --- */
+        .next-project {
+            height: 40vh; display: flex; justify-content: center; align-items: center;
+            background: #080808; border-top: 1px solid #222; text-decoration: none;
             transition: 0.3s;
         }
-        .back-btn:hover { 
-            background: white; box-shadow: 0 0 15px var(--neon-blue);
+        .next-project:hover { background: #111; }
+        .next-label {
+            font-family: 'JetBrains Mono', monospace; color: #666; font-size: 1rem; margin-bottom: 10px;
         }
-
-        /* --- CONTENTOR PRINCIPAL (O DOCUMENTO) --- */
-        .container { 
-            max-width: 900px; margin: 60px auto; padding: 40px; 
-            background: rgba(15, 23, 42, 0.6); /* Painel semi-transparente */
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            position: relative;
+        .next-title {
+            font-size: 4rem; color: white; margin: 0; text-transform: uppercase;
+            transition: 0.3s;
         }
-
-        /* Cantos decorativos do painel */
-        .container::before {
-            content: ''; position: absolute; top: -1px; left: -1px; 
-            width: 20px; height: 20px; 
-            border-top: 2px solid var(--neon-blue); border-left: 2px solid var(--neon-blue);
-        }
-        .container::after {
-            content: ''; position: absolute; bottom: -1px; right: -1px; 
-            width: 20px; height: 20px; 
-            border-bottom: 2px solid var(--neon-blue); border-right: 2px solid var(--neon-blue);
-        }
-
-        /* --- TIPOGRAFIA --- */
-        h1 { 
-            font-family: 'Rajdhani'; font-size: 3.5rem; font-weight: 900; 
-            line-height: 1; margin-bottom: 10px; text-transform: uppercase; 
-            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-        }
-        
-        .subtitle { 
-            color: var(--neon-blue); font-weight: 700; font-family: 'Rajdhani'; 
-            font-size: 1.2rem; margin-bottom: 40px; letter-spacing: 2px;
-            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
-        }
-
-        h2 { 
-            font-family: 'Rajdhani'; font-size: 2rem; margin-top: 60px; margin-bottom: 20px; 
-            color: var(--text-white); border-left: 4px solid var(--neon-blue); padding-left: 15px;
-            text-transform: uppercase;
-        }
-        
-        p { margin-bottom: 20px; color: #CBD5E1; font-size: 1.1rem; }
-
-        /* --- CAIXAS TÉCNICAS (Desafios) --- */
-        .tech-box {
-            background: rgba(2, 6, 23, 0.8); 
-            border: 1px solid #334155; 
-            padding: 30px; margin: 30px 0;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-        }
-        /* Linha decorativa lateral */
-        .tech-box::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--neon-blue);
-        }
-
-        .tech-label {
-            font-family: 'Rajdhani'; font-weight: 800; color: var(--neon-blue);
-            text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;
-            margin-bottom: 5px; display: block;
-        }
-
-        /* --- IMAGENS DENTRO DO POST --- */
-        .project-img {
-            width: 100%; height: auto; border: 1px solid #334155;
-            margin: 20px 0; filter: grayscale(20%); transition: 0.3s;
-        }
-        .project-img:hover { filter: grayscale(0%); border-color: var(--neon-blue); }
-
-        /* --- MOBILE --- */
-        @media (max-width: 768px) {
-            .container { padding: 20px; margin: 20px; }
-            h1 { font-size: 2.5rem; }
-        }
+        .next-project:hover .next-title { color: var(--project-color); text-shadow: 0 0 30px var(--project-glow); }
 
     </style>
 </head>
 <body>
 
-    <div class="bg-grid"></div>
+    <div class="loading-screen"><div class="loading-bar"></div></div>
+    <div class="cursor-dot"></div><div class="cursor-outline"></div>
 
-    <header class="log-header">
-        <div class="brand">MISSION <span>LOG</span></div>
-        <a href="index.html" class="back-btn">RETURN TO BASE</a>
-    </header>
-
-    <article class="container">
+    <div class="project-hero">
+        <div class="hero-bg"></div> <a href="index.html" class="back-btn"> < RETURN TO BASE</a>
         
-        <h1>SAVE STATE</h1>
-        <div class="subtitle">UNREAL ENGINE 5 // C++ // PHYSICS PUZZLE</div>
+        <div class="hero-content">
+            <h1 class="project-title">CYBER<br>ENGINEER</h1>
+            <div class="project-meta">MISSION 02 // UNITY</div>
+        </div>
+    </div>
 
-        <p><strong>MISSION BRIEFING:</strong> O Save State é um jogo de puzzles na primeira pessoa onde o jogador tem de reparar máquinas complexas. O twist mecânico é a validação física precisa: as peças não "encaixam" sozinhas por magia, elas têm de estar alinhadas e aparafusadas corretamente.</p>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-label">ROLE</div>
+            <div class="stat-value">Gameplay Programmer</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">ENGINE</div>
+            <div class="stat-value">Unity</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">LANGUAGE</div>
+            <div class="stat-value">C#</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">STATUS</div>
+            <div class="stat-value">Released</div>
+        </div>
+    </div>
 
-        <h2>/// TECHNICAL CHALLENGE: SOCKET SYSTEM</h2>
+    <div class="content-wrapper">
         
-        <div class="tech-box">
-            <span class="tech-label">PROBLEM DETECTED</span>
-            <p>O sistema de 'Attachment' nativo do Unreal era demasiado simples. As peças atravessavam-se umas às outras (clipping) e não havia sensação de peso ou resistência ao encaixar.</p>
-            
-            <br>
-            
-            <span class="tech-label">SOLUTION DEPLOYED</span>
-            <p>Desenvolvi um sistema de <strong>Socket Validation em C++</strong>. Criei uma classe `AMechanicPart` que verifica a colisão antes de permitir o encaixe. Usei `SweepSingleByChannel` para prever se a peça vai bater em algo antes de chegar ao destino, criando uma física "snappy" mas realista.</p>
+        <div class="section-title">01. OVERVIEW</div>
+        <div class="text-block">
+            Nocturne Battlegrounds is a fast-paced multiplayer FPS set in a dystopian future. 
+            My main responsibility was designing the <strong>Weapon System</strong> and <strong>Network Replication</strong> 
+            to ensure lag-free combat for up to 32 players.
         </div>
 
-        <h2>/// ARCHITECTURE & SCALABILITY</h2>
-        <p>Para garantir que podíamos criar 50 puzzles diferentes sem reescrever código, utilizei <strong>Data Assets</strong>. Cada máquina é definida por um Data Asset que lista quais as peças necessárias e as suas posições.</p>
-        <p>Isto permitiu aos Game Designers criar níveis novos sem tocar numa linha de C++.</p>
+        <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
 
-        <h2>/// MISSION DEBRIEF</h2>
-        <p>Este projeto fortaleceu o meu conhecimento em C++ puro e matemática vetorial (Dot Products foram essenciais para calcular o alinhamento das peças). O resultado final é um sistema robusto que pode ser reutilizado em qualquer jogo de simulação mecânica.</p>
+        <div class="section-title">02. TECHNICAL CHALLENGE: REWIND SYSTEM</div>
+        <div class="text-block">
+            Creating a lag-compensation system for hit detection was crucial. I implemented a server-side rewind system 
+            that stores player positions in a circular buffer.
+        </div>
 
-    </article>
+        <div class="code-block">
+            <div class="code-header">WeaponSystem.cpp</div>
+            <div class="code-content">
+<span class="keyword">void</span> <span class="function">AWeapon::Fire</span>() {
+    <span class="comment">// Calculate hit trace based on camera vector</span>
+    FHitResult Hit;
+    FVector Start = Camera->GetComponentLocation();
+    FVector End = Start + (Camera->getForwardVector() * Range);
 
+    <span class="keyword">if</span> (GetWorld()->LineTraceSingleByChannel(Hit, Start, End...)) {
+        <span class="comment">// Apply damage to actor</span>
+        ApplyDamage(Hit.GetActor(), BaseDamage);
+    }
+}
+            </div>
+        </div>
+
+    </div>
+
+    <a href="savestate.html" class="next-project">
+        <div style="text-align: center;">
+            <div class="next-label">NEXT MISSION</div>
+            <h2 class="next-title">SAVE STATE. ></h2>
+        </div>
+    </a>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // LOADING
+        const loadingBar = document.querySelector('.loading-bar');
+        const loadingScreen = document.querySelector('.loading-screen');
+        gsap.to(loadingBar, { width: "100%", duration: 1, ease: "power2.inOut", onComplete: () => {
+            gsap.to(loadingScreen, { opacity: 0, duration: 0.5, onComplete: () => loadingScreen.remove() });
+        }});
+
+        // CURSOR
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        window.addEventListener("mousemove", (e) => {
+            cursorDot.style.left = `${e.clientX}px`;
+            cursorDot.style.top = `${e.clientY}px`;
+            cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+        });
+
+        // ANIMATIONS
+        gsap.from(".project-title", { y: 100, opacity: 0, duration: 1, delay: 0.5 });
+        gsap.from(".stat-item", { y: 20, opacity: 0, duration: 0.5, stagger: 0.1, delay: 0.8 });
+        
+        gsap.utils.toArray(".section-title").forEach(title => {
+            gsap.from(title, {
+                scrollTrigger: { trigger: title, start: "top 80%" },
+                x: -50, opacity: 0, duration: 0.8
+            });
+        });
+    </script>
 </body>
 </html>
