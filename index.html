@@ -36,6 +36,18 @@
             z-index: 10; /* Fica por cima inicialmente */
         }
 
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease; pointer-events: none;
+        }
+        .loading-bar {
+            width: 0%; height: 2px; background: #00f0ff;
+            box-shadow: 0 0 10px #00f0ff;
+            transition: width 0.5s ease;
+        }
+
         /* Elementos da Intro (Iguais ao anterior) */
         .spotlight {
             position: absolute;
@@ -61,15 +73,36 @@
             display: flex; align-items: flex-end; pointer-events: none; will-change: transform;
         }
         .character-img { height: 100%; width: auto; filter: drop-shadow(0 0 15px rgba(0,0,0,0.9)); }
+        
         .hero-title {
-            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 18vw; line-height: 0.8; margin: 0; text-align: center; color: #ffffff;
-            z-index: 2; white-space: nowrap; text-shadow: 0 0 30px rgba(0,0,0,0.5); user-select: none;
+            position: absolute;
+            top: 45%;
+            left: 0;           /* Encosta à esquerda */
+            width: 100%;       /* Ocupa a largura total do ecrã */
+            text-align: center; /* O texto centra-se automaticamente */
+            transform: translateY(-50%); /* Centra só verticalmente */
+            
+            /* O resto mantém igual */
+            font-size: 18vw; 
+            line-height: 0.8; 
+            margin: 0; 
+            color: #ffffff;
+            z-index: 2; 
+            white-space: nowrap; 
+            pointer-events: none;
+            will-change: transform;
         }
         .role-badge {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            z-index: 3; font-family: 'JetBrains Mono', monospace; color: #00f0ff;
-            font-size: 1rem; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); user-select: none;
+            position: absolute; 
+            bottom: 120px; /* Mudado de 50px para 120px para dar espaço à seta */
+            left: 50%; 
+            transform: translateX(-50%);
+            z-index: 3; 
+            font-family: 'JetBrains Mono', monospace; 
+            color: #00f0ff;
+            font-size: 1rem; 
+            letter-spacing: 4px; 
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
         }
         /* Card FM */
         .profile-card {
@@ -89,12 +122,26 @@
         .projects-section {
             width: 100%;
             height: 100vh; /* Ocupa o ecrã todo */
-            background-color: #020202; /* Um pouco mais escuro para contraste */
+            background-color: #000000; /* Um pouco mais escuro para contraste */
             display: flex;
             align-items: center;
             overflow: hidden; /* Esconde o que está fora do ecrã */
             position: relative;
             z-index: 5;
+            transition: background-color 1s ease; 
+            perspective: 1000px; /* Necessário para o 3D Tilt */
+        }
+
+        .code-particles-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+
+        .code-particle {
+            position: absolute;
+            color: rgba(0, 240, 255, 0.15);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            user-select: none; white-space: nowrap;
         }
 
         .section-header {
@@ -112,8 +159,7 @@
         .horizontal-wrapper {
             display: flex;
             gap: 100px; /* Espaço entre cartões */
-            padding-left: 10vw; /* Começa um pouco à direita */
-            padding-right: 10vw;
+            width: max-content;
         }
 
         /* O Cartão do Jogo */
@@ -130,6 +176,19 @@
             transition: transform 0.3s;
             overflow: hidden;
             flex-shrink: 0; /* Impede que encolham */
+            transform-style: preserve-3d; /* Permite elementos 3D */
+            z-index: 10; /* Garante que fica à frente das partículas */
+            will-change: transform;
+            background: rgba(10, 10, 10, 0.95); /* Ligeiramente transparente para ver o glow */
+        }
+
+        .game-card:first-child {
+            margin-left: 20vw; /* (100vw ecrã - 60vw cartão) / 2 = 20vw */
+        }
+
+        /* 3. Empurra o ÚLTIMO cartão para ter espaço no fim */
+        .game-card:last-child {
+            margin-right: 20vw;
         }
 
         .game-card:hover { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
@@ -179,18 +238,21 @@
         /* --- SECÇÃO 4: FOOTER --- */
     .footer-section {
         width: 100%;
-        /* REMOVIDO: height: 80vh; -> Isto criava o buraco */
-        /* REMOVIDO: display: flex; align-items: center; -> Isto forçava o centro */
-        
-        background-color: #000000; /* Preto Puro */
+        height: auto;
+        background-color: #000000;
         position: relative;
         z-index: 10;
-        border-top: 1px solid #111;
         
-        /* Espaçamento controlado: 150px em cima e em baixo */
-        padding: 150px 0; 
+        /* MUDANÇA 1: Puxa o footer para cima para comer o espaço vazio dos projetos */
+        /* Como os cartões ocupam 70vh, sobram 15vh em baixo. Puxamos -15vh para colar. */
+        margin-top: -50vh; 
+        
+        /* MUDANÇA 2: Reduzimos o padding do topo para o texto não ficar longe */
+        padding: 50px 0 100px 0; 
+        
         display: flex;
         justify-content: center;
+        border-top: 1px solid #111; /* Opcional: Linha subtil a separar */
     }
 
     .footer-content {
@@ -287,10 +349,89 @@
         color: #333;
         font-size: 0.8rem;
     }
+    /* --- CORREÇÃO DO FOOTER (Prioridade) --- */
+    .footer-section {
+        /* Removemos qualquer height fixa para não haver buracos */
+        height: auto; 
+        min-height: 50vh;
+        padding: 150px 0; /* Espaço generoso mas controlado */
+        background-color: #000000;
+    }
+
+    /* --- 1. LOADING SCREEN (Barra Fina) --- */
+    .loading-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 9999;
+        display: flex; justify-content: center; align-items: center;
+        transition: opacity 0.5s ease; pointer-events: none;
+    }
+    .loading-bar {
+        width: 0%; height: 2px; background: #00f0ff;
+        box-shadow: 0 0 10px #00f0ff;
+        transition: width 0.5s ease;
+    }
+
+    /* --- 2. CURSOR MIRA (Crosshair) --- */
+    body { cursor: none; } /* Esconde a seta normal */
+    
+    .cursor-dot, .cursor-outline {
+        position: fixed; top: 0; left: 0;
+        transform: translate(-50%, -50%);
+        pointer-events: none; z-index: 9999;
+        border-radius: 50%; mix-blend-mode: difference;
+    }
+    .cursor-dot { width: 8px; height: 8px; background: #00f0ff; }
+    .cursor-outline { 
+        width: 40px; height: 40px; 
+        border: 1px solid rgba(0, 240, 255, 0.5);
+        transition: width 0.2s, height 0.2s; 
+    }
+    
+    /* Quando passas por cima de links, a mira cresce */
+    body.hovering .cursor-outline { width: 60px; height: 60px; border-color: #fff; }
+
+    /* --- 3. SCROLL HINT (Seta a saltar) --- */
+    .scroll-hint {
+        position: absolute; 
+        bottom: 30px; 
+        left: 50%; 
+        transform: translateX(-50%);
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 10px;
+        z-index: 5; 
+        opacity: 0.7;
+        font-family: 'JetBrains Mono', monospace; 
+        font-size: 0.7rem; 
+        color: #00f0ff;
+
+    }
+    .arrow-down { animation: bounce 2s infinite; font-size: 1.2rem; }
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+        40% {transform: translateY(-10px);}
+        60% {transform: translateY(-5px);}
+    }
+
+    /* --- 4. LOOT POPUP --- */
+    .loot-popup {
+        position: absolute; pointer-events: none;
+        background: #00f0ff; color: #000; padding: 5px 10px;
+        font-family: 'JetBrains Mono', monospace; font-weight: bold; font-size: 0.8rem;
+        border-radius: 4px; opacity: 0; z-index: 20;
+    }
 
     </style>
 </head>
 <body>
+    
+    <div class="loading-screen">
+        <div class="loading-bar"></div>
+    </div>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
     <div class="hero-wrapper">
         <div class="spotlight"></div>
@@ -314,15 +455,19 @@
                 <div class="skill-tag">LUAU</div>
             </div>
         </div>
+
+        <div class="scroll-hint">
+            <span>SCROLL TO START</span>
+            <div class="arrow-down">↓</div>
+        </div>
     </div>
 
     <section class="projects-section">
+        <div class="code-particles-container"></div>
         <div class="section-header">MISSION LOG // 2024-2026</div>
         
         <div class="horizontal-wrapper">
-            
-            <div class="game-card">
-                <div class="game-image" style="background-image: url('caminho/para/imagem_nocturne.jpg');"></div>
+            <div class="game-card" data-color="rgba(107, 38, 36, 1)"> <div class="game-image" style="background-image: url('caminho/para/imagem_nocturne.jpg');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 01</div>
                     <h2 class="game-title">NOCTURNE BATTLEGROUNDS</h2>
@@ -330,7 +475,7 @@
                 </div>
             </div>
 
-            <div class="game-card">
+            <div class="game-card" data-color="rgba(7, 115, 205, 1)">
                 <div class="game-image" style="background-image: url('caminho/para/imagem_cyber.jpg');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 02</div>
@@ -339,7 +484,7 @@
                 </div>
             </div>
 
-            <div class="game-card">
+            <div class="game-card" data-color="rgba(239, 193, 210, 0.75)">
                 <div class="game-image" style="background-image: url('caminho/para/imagem_savestate.jpg');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 03</div>
@@ -348,7 +493,7 @@
                 </div>
             </div>
 
-            <div class="game-card">
+            <div class="game-card" data-color="rgba(1, 78, 2, 1)">
                 <div class="game-image" style="background-image: url('caminho/para/imagem_lusiada.jpg');"></div>
                 <div class="game-info">
                     <div class="game-number">MISSION 04</div>
@@ -368,17 +513,18 @@
             <h2 class="footer-cta">READY TO START<br>A NEW GAME?</h2>
             
             <div class="footer-actions">
-                <a href="mailto:marcosantos@email.com" class="action-btn primary">
+                <a href="mailto:marco7santos@gmail.com" class="action-btn primary">
                     <span class="btn-text">INITIALIZE_CHAT</span>
                     <div class="btn-bg"></div>
                 </a>
+                <div class="loot-popup">+1 EMAIL COPIED</div>
                 <a href="cv.pdf" target="_blank" class="action-btn secondary">
                     <span class="btn-text">DOWNLOAD_CV</span>
                 </a>
             </div>
 
             <div class="social-links">
-                <a href="https://github.com/teuuser" target="_blank" class="social-item">GITHUB</a>
+                <a href="https://github.com/Koll11" target="_blank" class="social-item">GITHUB</a>
                 <a href="https://linkedin.com/in/teuuser" target="_blank" class="social-item">LINKEDIN</a>
                 <a href="#" class="social-item">INSTAGRAM</a>
             </div>
@@ -392,81 +538,189 @@
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        window.addEventListener("load", () => {
+    // LOADING: Simula carregamento
+    const loadingBar = document.querySelector('.loading-bar');
+    const loadingScreen = document.querySelector('.loading-screen');
+    
+    // Anima a barra assim que o script corre
+    gsap.to(loadingBar, { width: "100%", duration: 1.5, ease: "power2.inOut" });
 
-            // --- REFERÊNCIAS ---
-            const charContainer = document.querySelector('.character-container');
-            const charImg = document.querySelector('.character-img');
-            const light = document.querySelector('.spotlight');
-            const title = document.querySelector('.hero-title');
-            const badge = document.querySelector('.role-badge');
-            const profileCard = document.querySelector('.profile-card');
+    window.addEventListener("load", () => {
+        
+        // 1. FECHAR LOADING SCREEN (Sem breaks)
+        gsap.to(loadingScreen, { opacity: 0, duration: 0.5, delay: 0.5, onComplete: () => loadingScreen.remove() });
 
-            // Config Inicial
-            gsap.set(title, { xPercent: -50, yPercent: -50 });
-            gsap.set(light, { xPercent: -50, yPercent: -50 });
-
-            // --- 1. MOUSE PARALLAX ---
-            document.addEventListener('mousemove', (e) => {
-                if (window.scrollY < 100) { 
-                    const x = (e.clientX / window.innerWidth - 0.5);
-                    const y = (e.clientY / window.innerHeight - 0.5);
-                    gsap.to(title, { x: x * 30, y: y * 20, xPercent: -50, yPercent: -50, duration: 1 });
-                    gsap.to(light, { x: -x * 50, y: -y * 50, xPercent: -50, yPercent: -50, duration: 1.5 });
-                    gsap.to(charImg, { x: x * 15, y: y * 10, duration: 1.2 });
-                }
-            });
-
-            // --- 2. HERO ANIMATION (Intro -> Profile) ---
-            let tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: ".hero-wrapper",
-                    start: "top top",
-                    end: "+=100%", 
-                    scrub: 1,      
-                    pin: true      
-                }
-            });
-
-            tl.set(charContainer, { zIndex: 10, immediateRender: false }, 0);
-            tl.to(charImg, { x: -window.innerWidth * 0.25, duration: 1 }, 0);
-            tl.to(light, { x: -window.innerWidth * 0.25, xPercent: -50, duration: 1 }, 0);
-            tl.to(title, { y: -300, opacity: 0, duration: 0.8 }, 0);
-            tl.to(badge, { opacity: 0, duration: 0.2 }, 0);
-            tl.to(profileCard, { opacity: 1, x: -50, duration: 0.8 }, 0.2);
-
-            // --- 3. PROJECT SCROLL (Awwwards Style) ---
-            // Aqui está a magia do scroll horizontal
+        // --- REFERÊNCIAS GERAIS ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        
+        // 2. CURSOR MIRA
+        window.addEventListener("mousemove", (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
             
-            const sections = gsap.utils.toArray(".game-card"); // Pega todos os cartões
+            // Ponto segue instantâneo
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+            
+            // Círculo segue com delay (efeito "smooth")
+            cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+        });
 
-            gsap.to(sections, {
-                xPercent: -100 * (sections.length - 1), // Move tudo para a esquerda
-                ease: "none", // Movimento linear (sem aceleração/desaceleração)
-                scrollTrigger: {
-                    trigger: ".projects-section",
-                    pin: true,     // Prende a secção enquanto faz scroll lateral
-                    scrub: 1,      // Suavidade
-                    anticipatePin: 1,
-                    // Calcula a duração do scroll baseado no número de cartões
-                    // Quanto maior o valor (ex: +=3000), mais lento e suave é o scroll
-                    invalidateOnRefresh: true,
-                    end: () => "+=" + document.querySelector(".horizontal-wrapper").offsetWidth 
-                }
+        // Detetar Links para aumentar a mira
+        const links = document.querySelectorAll('a, .game-card');
+        links.forEach(link => {
+            link.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            link.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        // 3. ANIMAÇÃO HERO (Com Seta a desaparecer)
+        const charContainer = document.querySelector('.character-container');
+        const charImg = document.querySelector('.character-img');
+        const light = document.querySelector('.spotlight');
+        const title = document.querySelector('.hero-title');
+        const badge = document.querySelector('.role-badge');
+        const profileCard = document.querySelector('.profile-card');
+        
+        gsap.set(title, { 
+            position: "absolute",
+            left: "50%", 
+            top: "45%", 
+            xPercent: -50,
+        });
+
+        // Força a luz a ir para o centro exato
+        gsap.set(light, { 
+            position: "absolute",
+            left: "50%", 
+            top: "50%", 
+            xPercent: -50, 
+            yPercent: -50 
+        });
+
+        gsap.set(badge, { 
+            bottom: "120px" 
+        });
+        // ---------------------
+
+        let tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".hero-wrapper", start: "top top", end: "+=100%", 
+                scrub: 1, pin: true, anticipatePin: 1
+            }
+        });
+
+        // Remove a seta logo ao início
+        tl.to(".scroll-hint", { opacity: 0, duration: 0.2 }, 0);
+        
+        tl.set(charContainer, { zIndex: 10, immediateRender: false }, 0);
+        tl.to(charImg, { x: -window.innerWidth * 0.25, duration: 1 }, 0);
+        tl.to(light, { x: -window.innerWidth * 0.25, xPercent: -50, duration: 1 }, 0);
+        tl.to(title, { y: -300, opacity: 0, duration: 0.8 }, 0);
+        tl.to(badge, { opacity: 0, duration: 0.2 }, 0);
+        tl.to(profileCard, { opacity: 1, x: -50, duration: 0.8 }, 0.2);
+
+        // 4. SKILLS "POP-POP-POP" (Stagger)
+        // Faz as tags aparecerem uma a uma
+        tl.from(".skill-tag", {
+            y: 20, opacity: 0, scale: 0.5,
+            duration: 0.3, stagger: 0.1, ease: "back.out(1.7)"
+        }, 0.5);
+
+        // 5. PROJETOS (Scroll Horizontal + Ambilight + Cores)
+        const projectSection = document.querySelector(".projects-section");
+        const wrapper = document.querySelector(".horizontal-wrapper");
+        const cards = gsap.utils.toArray(".game-card");
+
+        function getScrollAmount() {
+            let lastCard = cards[cards.length - 1];
+            let lastCardCenter = lastCard.offsetLeft + (lastCard.offsetWidth / 2);
+            let centerScreen = window.innerWidth / 2;
+            return -(lastCardCenter - centerScreen);
+        }
+
+        let projectTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".projects-section", pin: true, scrub: 1, invalidateOnRefresh: true,
+                end: () => "+=" + wrapper.scrollWidth,
+                onLeave: () => gsap.to(projectSection, { backgroundColor: "#000000", duration: 0.5 }),
+                onLeaveBack: () => gsap.to(projectSection, { backgroundColor: "#000000", duration: 0.5 }),
+                onEnter: () => gsap.to(projectSection, { backgroundColor: "#000000", duration: 0.1 })
+            }
+        });
+
+        projectTl.to(wrapper, { x: getScrollAmount, ease: "none" });
+
+        cards.forEach((card) => {
+            const color = card.getAttribute("data-color");
+            ScrollTrigger.create({
+                trigger: card, containerAnimation: projectTl, start: "left 60%", end: "right 40%",
+                onEnter: () => gsap.to(projectSection, { backgroundColor: color, duration: 0.5, overwrite: "auto" }),
+                onEnterBack: () => gsap.to(projectSection, { backgroundColor: color, duration: 0.5, overwrite: "auto" }),
+            });
+        });
+
+        // 3D TILT
+        cards.forEach(card => {
+            card.addEventListener("mousemove", (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                gsap.to(card, { rotationY: x * 20, rotationX: -y * 20, transformPerspective: 1000, ease: "power1.out", duration: 0.5 });
+            });
+            card.addEventListener("mouseleave", () => {
+                gsap.to(card, { rotationY: 0, rotationX: 0, duration: 1, ease: "elastic.out(1, 0.5)" });
+            });
+        });
+
+        // 6. BOTÕES MAGNÉTICOS + LOOT POPUP
+        const btns = document.querySelectorAll('.action-btn');
+        
+        btns.forEach(btn => {
+            // Efeito Magnético
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                // Botão move-se 30% da distância do rato (atração)
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: "power2.out" });
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.5)" });
             });
 
-            // --- 4. FOOTER REVEAL ---
-            gsap.from(".footer-content", {
-                y: 50,
-                opacity: 0,
-                duration: 1,
-                scrollTrigger: {
-                    trigger: ".footer-cta",
-                    start: "top 85%", // Começa quando o topo do footer entra no ecrã
-                    toggleActions: "play none none reverse"
-                }
-            });
+            // Loot Popup (Só no botão de Email)
+            if(btn.href.includes('mailto')) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Impede abrir o email logo para veres o efeito
+                    
+                    // Copia Email
+                    navigator.clipboard.writeText("marco7santos@gmail.com");
+                    
+                    // Animação do Loot
+                    const popup = document.querySelector('.loot-popup');
+                    // Posiciona onde clicaste
+                    gsap.set(popup, { x: 0, y: 0, opacity: 1 });
+                    // Flutua para cima e desaparece
+                    gsap.fromTo(popup, 
+                        { y: 0, opacity: 1 },
+                        { y: -50, opacity: 0, duration: 1.5, ease: "power2.out" }
+                    );
+                });
+            }
+        });
 
+        // 7. FOOTER REVEAL
+        gsap.from(".footer-content", {
+            y: 50, opacity: 0, duration: 1,
+            scrollTrigger: {
+                trigger: ".footer-cta", start: "top 85%", toggleActions: "play none none reverse"
+            }
+        });
+
+        ScrollTrigger.refresh();
         });
 
     </script>
