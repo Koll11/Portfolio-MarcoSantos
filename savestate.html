@@ -155,6 +155,74 @@
         }
         .next-project:hover .next-title { color: var(--project-color); text-shadow: 0 0 30px var(--project-glow); }
 
+.media-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
+            gap: 20px; /* Espaço entre os vídeos */
+            margin-bottom: 60px;
+        }
+
+        /* --- VIDEOS PEQUENOS (Grid) --- */
+        .project-video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid #333;
+            display: block; 
+            cursor: pointer; /* Mostra que é clicável */
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .project-video:hover {
+            transform: scale(1.02); /* Pequeno zoom ao passar o rato */
+            border-color: var(--project-color);
+            box-shadow: 0 0 20px var(--project-glow);
+        }
+
+        /* --- LIGHTBOX (O Popup Gigante) --- */
+        .video-lightbox {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10000; /* Fica por cima de TUDO */
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; /* Escondido inicialmente */
+            transition: opacity 0.3s ease;
+        }
+
+        /* Quando ativamos a classe 'active', ele aparece */
+        .video-lightbox.active { opacity: 1; pointer-events: all; }
+
+        .lightbox-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); /* Fundo quase preto */
+            backdrop-filter: blur(5px);
+        }
+
+        .lightbox-content {
+            position: relative; z-index: 10001; width: 80%; max-width: 1200px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+        }
+
+        .lightbox-player {
+            width: 100%; height: auto;
+            border: 1px solid var(--project-color);
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-close {
+            font-family: 'JetBrains Mono', monospace; color: #666; cursor: pointer;
+            font-size: 0.9rem; transition: 0.3s;
+        }
+        .lightbox-close:hover { color: var(--project-color); }
+
+        .lightbox-image {
+            width: 100%; height: auto;
+            max-height: 80vh; /* Para não sair do ecrã */
+            object-fit: contain;
+            border: 1px solid var(--project-color);
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
     </style>
 </head>
 <body>
@@ -200,7 +268,11 @@
             to ensure a cohesive and intuitive player experience. 
         </div>
 
-        <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
+        <div class="media-grid">
+            <img src="SaveState/SaveStateGameplay (2).gif" class="project-video" alt="Gameplay Clip 1">
+            
+            <img src="SaveState/SaveStateGameplay (3).gif" class="project-video" alt="Gameplay Clip 2">
+        </div>
 
         <div class="section-title">02. TECHNICAL CHALLENGE: Assembly System</div>
         <div class="text-block">
@@ -215,31 +287,31 @@
             I implemented a validation system at delivery time that checks if all required pieces are correctly attached to their respective sockets.
         </div>
 
-        <div class="code-block">
-            <div class="code-header">WeaponSystem.cpp</div>
-            <div class="code-content">
-<span class="keyword">void</span> <span class="function">AWeapon::Fire</span>() {
-    <span class="comment">// Calculate hit trace based on camera vector</span>
-    FHitResult Hit;
-    FVector Start = Camera->GetComponentLocation();
-    FVector End = Start + (Camera->getForwardVector() * Range);
+        <div class="media-grid">
+            <img src="SaveState/SaveStateEditor (1).gif" class="project-video" alt="Gameplay Clip 1">
 
-    <span class="keyword">if</span> (GetWorld()->LineTraceSingleByChannel(Hit, Start, End...)) {
-        <span class="comment">// Apply damage to actor</span>
-        ApplyDamage(Hit.GetActor(), BaseDamage);
-    }
-}
-            </div>
+            <img src="SaveState/SaveStateEditor (2).gif" class="project-video" alt="Gameplay Clip 1">
         </div>
 
-    </div>
-
-    <a href="lusiada1.html" class="next-project">
+    </div> <a href="lusiada1.html" class="next-project">
         <div style="text-align: center;">
             <div class="next-label">NEXT MISSION</div>
-            <h2 class="next-title">LUSIADA-1. ></h2>
+            <h2 class="next-title">Lusiada-1. ></h2>
         </div>
     </a>
+
+    <div class="video-lightbox">
+        <div class="lightbox-bg"></div>
+        <div class="lightbox-content">
+            <video class="lightbox-player" controls autoplay style="display: none;">
+                <source src="" type="video/mp4">
+            </video>
+            
+            <img class="lightbox-image" src="" alt="Zoom" style="display: none;">
+            
+            <div class="lightbox-close">CLOSE FEED [X]</div>
+        </div>
+    </div>
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
@@ -270,6 +342,52 @@
                 x: -50, opacity: 0, duration: 0.8
             });
         });
+
+// --- LIGHTBOX INTELIGENTE (GIF + MP4) ---
+        const lightbox = document.querySelector('.video-lightbox');
+        const lightboxPlayer = document.querySelector('.lightbox-player'); // O elemento <video>
+        const lightboxImage = document.querySelector('.lightbox-image');   // O elemento <img>
+        const lightboxBg = document.querySelector('.lightbox-bg');
+        const lightboxClose = document.querySelector('.lightbox-close');
+        
+        // Seleciona tudo o que tiver a classe .project-video (seja img ou video)
+        const gridItems = document.querySelectorAll('.project-video');
+
+        gridItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const isVideo = this.tagName === 'VIDEO'; // Verifica se é vídeo
+                
+                // Limpa os displays anteriores
+                lightboxPlayer.style.display = "none";
+                lightboxImage.style.display = "none";
+                lightbox.classList.add('active');
+
+                if (isVideo) {
+                    // SE FOR VÍDEO (.mp4)
+                    const source = this.querySelector('source').src;
+                    lightboxPlayer.src = source;
+                    lightboxPlayer.style.display = "block";
+                    lightboxPlayer.muted = false; 
+                    lightboxPlayer.play();
+                } else {
+                    // SE FOR IMAGEM (.gif, .jpg)
+                    const source = this.src;
+                    lightboxImage.src = source;
+                    lightboxImage.style.display = "block";
+                }
+            });
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            // Pausa o vídeo se estiver a tocar
+            lightboxPlayer.pause();
+            lightboxPlayer.src = "";
+            lightboxImage.src = "";
+        }
+
+        lightboxBg.addEventListener('click', closeLightbox);
+        lightboxClose.addEventListener('click', closeLightbox);
     </script>
 </body>
 </html>

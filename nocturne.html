@@ -155,6 +155,65 @@
         }
         .next-project:hover .next-title { color: var(--project-color); text-shadow: 0 0 30px var(--project-glow); }
 
+        .media-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
+            gap: 20px; /* Espaço entre os vídeos */
+            margin-bottom: 60px;
+        }
+
+        /* --- VIDEOS PEQUENOS (Grid) --- */
+        .project-video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid #333;
+            display: block; 
+            cursor: pointer; /* Mostra que é clicável */
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .project-video:hover {
+            transform: scale(1.02); /* Pequeno zoom ao passar o rato */
+            border-color: var(--project-color);
+            box-shadow: 0 0 20px var(--project-glow);
+        }
+
+        /* --- LIGHTBOX (O Popup Gigante) --- */
+        .video-lightbox {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10000; /* Fica por cima de TUDO */
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; /* Escondido inicialmente */
+            transition: opacity 0.3s ease;
+        }
+
+        /* Quando ativamos a classe 'active', ele aparece */
+        .video-lightbox.active { opacity: 1; pointer-events: all; }
+
+        .lightbox-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); /* Fundo quase preto */
+            backdrop-filter: blur(5px);
+        }
+
+        .lightbox-content {
+            position: relative; z-index: 10001; width: 80%; max-width: 1200px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+        }
+
+        .lightbox-player {
+            width: 100%; height: auto;
+            border: 1px solid var(--project-color);
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-close {
+            font-family: 'JetBrains Mono', monospace; color: #666; cursor: pointer;
+            font-size: 0.9rem; transition: 0.3s;
+        }
+        .lightbox-close:hover { color: var(--project-color); }
+
     </style>
 </head>
 <body>
@@ -199,7 +258,15 @@
             to ensure lag-free combat for up to 15 players.
         </div>
 
-        <img src="caminho/para/imagem_gameplay.jpg" class="project-img" alt="Gameplay">
+        <div class="media-grid">
+            <video class="project-video" autoplay loop muted playsinline>
+                <source src="NocturneBattlegrounds/NocturneBGClip1.mp4" type="video/mp4">
+            </video>
+            
+            <video class="project-video" autoplay loop muted playsinline>
+                <source src="NocturneBattlegrounds/NocturneBGClip2.mp4" type="video/mp4">
+            </video>
+        </div>
 
         <div class="section-title">02. TECHNICAL CHALLENGE: COMBAT SYSTEM</div>
         <div class="text-block">
@@ -215,31 +282,38 @@
         </div>
 
         <div class="code-block">
-            <div class="code-header">WeaponSystem.cpp</div>
-            <div class="code-content">
-
-        <span class="keyword">void</span> <span class="function">AWeapon::Fire</span>() {
-            <span class="comment">// Calculate hit trace based on camera vector</span>
-        FHitResult Hit;
-        FVector Start = Camera->GetComponentLocation();
-        FVector End = Start + (Camera->getForwardVector() * Range);
-
-        <span class="keyword">if</span> (GetWorld()->LineTraceSingleByChannel(Hit, Start, End...)) {
-            <span class="comment">// Apply damage to actor</span>
-            ApplyDamage(Hit.GetActor(), BaseDamage);
-            }
-        }
+                    <div class="code-header">CombatSystem.server.lua</div>
+                    
+                    <div class="code-content" style="white-space: pre-wrap;">
+        <span class="keyword">UIS.InputEnded:Connect</span>(<span class="function">function</span>(I, E)
+            <span class="comment">-- Calls the server when input is ended</span>
+            <span class="keyword">if</span> I.UserInputType == Enum.UserInputType.MouseButton1 <span class="keyword">then</span>
+                <span class="keyword">if</span> combo == 1 <span class="keyword">then</span>
+                    game.ReplicatedStorage.MainEvent:<span class="function">FireServer</span>(<span class="string">"Regular1"</span>)
+                    enemyChar:<span class="function">SetAttribute</span>(<span class="string">"Stunned"</span>, <span class="keyword">true</span>)
+                    enemyHum:<span class="function">TakeDamage</span>(DAMAGE)
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>)
+                    </div>
                 </div>
-            </div>
 
+    <div class="video-lightbox">
+        <div class="lightbox-bg"></div> <div class="lightbox-content">
+            <video class="lightbox-player" controls autoplay>
+                <source src="" type="video/mp4">
+            </video>
+            <div class="lightbox-close">CLOSE FEED [X]</div>
         </div>
+    </div>
 
-    <a href="cyber.html" class="next-project">
+        </div> <a href="cyber.html" class="next-project">
         <div style="text-align: center;">
             <div class="next-label">NEXT MISSION</div>
             <h2 class="next-title">CYBER ENG. ></h2>
         </div>
     </a>
+
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
@@ -270,6 +344,43 @@
                 x: -50, opacity: 0, duration: 0.8
             });
         });
+
+        // --- LIGHTBOX LÓGICA ---
+        const lightbox = document.querySelector('.video-lightbox');
+        const lightboxPlayer = document.querySelector('.lightbox-player');
+        const lightboxBg = document.querySelector('.lightbox-bg');
+        const lightboxClose = document.querySelector('.lightbox-close');
+        
+        // Seleciona todos os vídeos da grelha
+        const gridVideos = document.querySelectorAll('.project-video');
+
+        gridVideos.forEach(vid => {
+            vid.addEventListener('click', function() {
+                // 1. Pega no ficheiro do vídeo clicado
+                const source = this.querySelector('source').src;
+                
+                // 2. Mete esse ficheiro no leitor grande
+                lightboxPlayer.src = source;
+                
+                // 3. Mostra o Lightbox
+                lightbox.classList.add('active');
+                
+                // 4. Começa a tocar com som
+                lightboxPlayer.muted = false; 
+                lightboxPlayer.play();
+            });
+        });
+
+        // Função para fechar
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxPlayer.pause();
+            lightboxPlayer.src = ""; // Limpa para não continuar a gastar memória
+        }
+
+        lightboxBg.addEventListener('click', closeLightbox);
+        lightboxClose.addEventListener('click', closeLightbox);
+
     </script>
 </body>
 </html>
