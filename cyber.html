@@ -224,6 +224,23 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
+        /* --- CORREÇÃO FINAL DO CURSOR NO LIGHTBOX --- */
+        
+        /* Quando o body tem a classe 'lightbox-active' (lightbox aberto) */
+        body.lightbox-active .cursor-dot,
+        body.lightbox-active .cursor-outline {
+            /* 1. Desliga o modo que o torna invisível no preto */
+            mix-blend-mode: normal !important; 
+            
+            /* 2. Força a cor Ciano brilhante para se ver bem */
+            background: #00a2ff !important;
+            border-color: #155183 !important;
+            box-shadow: 0 0 20px #00f0ff; /* Um brilhozinho extra */
+
+            /* 3. Z-Index máximo possível num browser (para ter a certeza absoluta) */
+            z-index: 2147483647 !important; 
+        }
+
     </style>
 </head>
 <body>
@@ -372,6 +389,9 @@
                 lightboxImage.style.display = "none";
                 lightbox.classList.add('active');
 
+
+                document.body.classList.add('lightbox-active');
+
                 if (isVideo) {
                     // SE FOR VÍDEO (.mp4)
                     const source = this.querySelector('source').src;
@@ -391,6 +411,7 @@
         function closeLightbox() {
             lightbox.classList.remove('active');
             // Pausa o vídeo se estiver a tocar
+            document.body.classList.remove('lightbox-active');
             lightboxPlayer.pause();
             lightboxPlayer.src = "";
             lightboxImage.src = "";

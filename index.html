@@ -376,6 +376,71 @@
         background-color: #000000;
     }
 
+    /* --- ESTILOS DO ABOUT ME NO FOOTER --- */
+        .about-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px; /* Espaço entre a foto e o texto */
+            margin: 40px auto 60px auto;
+            max-width: 900px;
+            text-align: left;
+        }
+
+        .about-image-wrapper {
+            flex-shrink: 0; /* Impede a imagem de encolher */
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+
+        .about-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Mantém a imagem proporcional sem a distorcer */
+            border-radius: 50%;
+            border: 2px solid #333;
+            transition: 0.3s;
+        }
+
+        /* Efeito de brilho quando passas o rato na tua foto */
+        .about-image:hover {
+            border-color: #00f0ff;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+        }
+
+        .about-text {
+            color: #cccccc;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .about-text p {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .about-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Palavras-chave destacadas a Ciano */
+        .highlight {
+            color: #00f0ff;
+            font-weight: 700;
+        }
+
+        /* --- RESPONSIVIDADE (Para Telemóveis) --- */
+        @media (max-width: 768px) {
+            .about-container {
+                flex-direction: column; /* Coloca a foto em cima do texto */
+                text-align: center;
+                gap: 30px;
+                padding: 0 20px;
+            }
+        }
+
     /* --- 1. LOADING SCREEN (Barra Fina) --- */
     .loading-screen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -395,7 +460,7 @@
     .cursor-dot, .cursor-outline {
         position: fixed; top: 0; left: 0;
         transform: translate(-50%, -50%);
-        pointer-events: none; z-index: 9999;
+        pointer-events: none; z-index: 99999;
         border-radius: 50%; mix-blend-mode: difference;
     }
     .cursor-dot { width: 8px; height: 8px; background: #00f0ff; }
@@ -535,32 +600,41 @@
     <div style="height: 50vh; background: #020202;"></div>
 
     <footer class="footer-section">
-        <div class="footer-content">
-            <div class="footer-header">MISSION COMPLETE</div>
-            <h2 class="footer-cta">READY TO START<br>A NEW GAME?</h2>
-            
-            <div class="footer-actions">
-                <a href="mailto:marco7santos@gmail.com" class="action-btn primary">
-                    <span class="btn-text">INITIALIZE_CHAT</span>
-                    <div class="btn-bg"></div>
-                </a>
-                <div class="loot-popup">+1 EMAIL COPIED</div>
-                <a href="cv.pdf" target="_blank" class="action-btn secondary">
-                    <span class="btn-text">DOWNLOAD_CV</span>
-                </a>
-            </div>
+            <div class="footer-content">
+                <div class="footer-header">SYSTEM.PROFILE // ABOUT_ME</div>
+                
+                <div class="about-container">
+                    <div class="about-image-wrapper">
+                        <img src="Fotos/TuaFotoAqui.png" alt="Marco Santos" class="about-image">
+                    </div>
+                    
+                    <div class="about-text">
+                        <p>Hey there! I'm Marco Santos and I'm a <strong class="highlight">Gameplay Programmer</strong> with a passion for building scalable game systems and engaging mechanics.</p>
+                        
+                        <p>I've spent the last few years diving deep into <strong class="highlight">Unity, Unreal Engine, and Roblox</strong>, experimenting with multiplayer network replication, AI behaviors, and complex combat systems inside and outside of games.</p>
+                        
+                        <p>Alongside coding, I love collaborating with teams, and bringing innovative ideas to life. Feel free to reach out!</p>
+                    </div>
+                </div>
+                
+                <div class="footer-actions">
+                    <a href="mailto:marcosantos@email.com" class="action-btn primary">
+                        <span class="btn-text">INITIALIZE_CHAT</span>
+                    </a>
+                    <div class="loot-popup">+1 EMAIL COPIED</div>
+                    <a href="cv.pdf" target="_blank" class="action-btn secondary">
+                        <span class="btn-text">DOWNLOAD_CV</span>
+                    </a>
+                </div>
 
-            <div class="social-links">
-                <a href="https://github.com/Koll11" target="_blank" class="social-item">GITHUB</a>
-                <a href="https://linkedin.com/in/teuuser" target="_blank" class="social-item">LINKEDIN</a>
-                <a href="#" class="social-item">INSTAGRAM</a>
+                <div class="social-links">
+                    <a href="https://github.com/koll11" target="_blank" class="social-item">GITHUB</a>
+                    <a href="https://www.linkedin.com/in/marco-santos-3a45b528a" target="_blank" class="social-item">LINKEDIN</a>
+                    <a href="https://www.instagram.com/koll_11" class="social-item">INSTAGRAM</a>
+                </div>
+                <div class="copyright">© 2026 MARCO SANTOS // SYSTEM ONLINE</div>
             </div>
-            
-            <div class="copyright">
-                © 2025 MARCO SANTOS // SYSTEM ONLINE
-            </div>
-        </div>
-    </footer>
+        </footer>
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
