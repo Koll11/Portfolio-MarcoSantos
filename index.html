@@ -505,11 +505,149 @@
         border-radius: 4px; opacity: 0; z-index: 20;
     }
 
+/* =========================================
+           MOBILE FINAL POLISH (Versão Centrada)
+           ========================================= */
+        @media screen and (max-width: 950px) {
+            
+            /* 1. GERAL - SEGURANÇA TOTAL */
+            html, body {
+                overflow-x: hidden !important; /* Corta tudo o que saia da largura */
+                width: 100%;
+                position: relative;
+            }
+            
+            /* Remove cursor */
+            .cursor-dot, .cursor-outline { display: none !important; }
+            * { cursor: auto !important; }
+
+            /* 2. HERO SECTION - CENTRAGEM PERFEITA */
+            .hero-wrapper {
+                height: 100vh;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .hero-title {
+                position: relative !important;
+                top: auto !important; left: auto !important;
+                transform: none !important;
+                
+                /* Ajuste para não cortar */
+                font-size: 11vw !important; /* Um pouco menor para caber nomes longos */
+                width: 90%; /* Margem de segurança lateral */
+                text-align: center;
+                margin: 0 auto 20px auto; /* Centrado com margem em baixo */
+                line-height: 1.1;
+                z-index: 10;
+            }
+
+            /* O BONECO AGORA FICA CENTRADO À FORÇA */
+            .character-container {
+                position: absolute !important;
+                bottom: 0 !important;
+                
+                /* TÉCNICA DE CENTRAGEM ABSOLUTA */
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                right: auto !important;
+                top: auto !important;
+                
+                width: 100vw !important; /* Ocupa a largura toda */
+                max-width: 600px; /* Mas não deixa ficar gigante */
+                height: 55vh !important;
+                opacity: 0.5;
+                pointer-events: none;
+                z-index: 1;
+                display: flex;
+                justify-content: center; /* Garante que a img dentro tb centra */
+            }
+            
+            .character-img {
+                width: auto; 
+                height: 100%; 
+                object-fit: contain;
+            }
+
+            .role-badge {
+                position: relative !important;
+                bottom: auto !important;
+                left: auto !important;
+                transform: none !important;
+                margin-bottom: 30px; /* Espaço para as skills */
+                z-index: 20;
+            }
+
+            /* SKILLS - OBRIGAR A FICAR NO ECRÃ */
+            .skills-container {
+                display: flex !important;
+                flex-wrap: wrap !important; /* Permite quebrar linha se não couber */
+                justify-content: center !important;
+                gap: 10px;
+                width: 90%;
+                margin: 0 auto;
+                position: relative;
+                z-index: 20;
+            }
+
+            .skill-tag {
+                font-size: 0.8rem !important;
+                padding: 5px 10px !important;
+            }
+
+            /* 3. PROJETOS - CORREÇÃO DO PRIMEIRO E ÚLTIMO */
+            .projects-section {
+                height: auto !important;
+                display: block !important;
+                background-color: #000 !important;
+                padding: 0 !important; /* Removemos padding da secção */
+            }
+
+            .horizontal-wrapper {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                height: auto !important;
+                transform: none !important;
+                
+                /* AQUI ESTÁ A CORREÇÃO DOS CORTES */
+                padding: 80px 20px !important; /* 80px em cima e baixo para não cortar */
+                box-sizing: border-box !important;
+                gap: 60px;
+            }
+
+            .game-card {
+                width: 100% !important;
+                max-width: 400px; /* Impede de ficar demasiado largo em tablets */
+                height: 450px !important;
+                margin: 0 auto !important;
+                transform: none !important;
+            }
+
+            /* Títulos dos jogos ajustados */
+            .game-info h2 { font-size: 1.8rem; }
+
+            /* 4. FOOTER */
+            .about-container {
+                flex-direction: column !important;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            .about-image-wrapper { width: 140px; height: 140px; }
+            .about-text { text-align: center; }
+        }
 
     </style>
 </head>
 <body>
     
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <div class="loading-screen">
         <div class="loading-bar"></div>
     </div>
@@ -730,6 +868,11 @@
         }, 0.5);
 
         // 5. PROJETOS (Scroll Horizontal + Ambilight + Cores)
+
+        let mm = gsap.matchMedia();
+
+        mm.add("(min-width: 800px)", () => {
+        
         const projectSection = document.querySelector(".projects-section");
         const wrapper = document.querySelector(".horizontal-wrapper");
         const cards = gsap.utils.toArray(".game-card");
@@ -781,6 +924,7 @@
                 gsap.to(card, { rotationY: 0, rotationX: 0, duration: 1, ease: "elastic.out(1, 0.5)" });
             });
         });
+    });
 
         // 6. BOTÕES MAGNÉTICOS + LOOT POPUP
         const btns = document.querySelectorAll('.action-btn');
