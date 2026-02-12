@@ -231,6 +231,79 @@
             z-index: 2147483647 !important; 
         }
 
+        /* =========================================
+           MOBILE FIXES (Tudo o que é < 768px)
+           ========================================= */
+        @media (max-width: 768px) {
+            
+            /* 1. MATA O CURSOR PERSONALIZADO (Telemóvel não tem rato) */
+            .cursor-dot, .cursor-outline { display: none !important; }
+            * { cursor: auto !important; }
+            
+            /* 2. AJUSTA O HERO (TEXTO E BONECO) */
+            .hero-title {
+                font-size: 15vw !important; /* Texto mais pequeno */
+                top: 30% !important; /* Sobe o texto para não ficar atrás do boneco */
+                width: 90%;
+                left: 5%;
+                transform: none !important; /* Remove transformações complexas */
+                text-align: center;
+            }
+
+            .role-badge {
+                bottom: 15% !important; /* Sobe a badge */
+                font-size: 0.8rem;
+                padding: 8px 16px;
+            }
+
+            .character-container {
+                right: -30% !important; /* Empurra o boneco para a direita */
+                width: 120% !important; /* Aumenta para ocupar o fundo */
+                opacity: 0.6; /* Um pouco mais transparente para ler o texto */
+            }
+
+            /* 3. PROJETOS (AJUSTA OS CARTÕES PARA O TAMANHO DO ECRÃ) */
+            .game-card {
+                width: 85vw !important; /* Cartão ocupa 85% da largura do telemóvel */
+                height: 60vh !important; /* Menos alto */
+                margin-right: 15px; /* Menos espaço entre cartões */
+            }
+            
+            .game-info h2 { font-size: 2rem; } /* Título do jogo mais pequeno */
+
+            /* 4. PÁGINAS DE PROJETO (VIDEO CLIPS E TEXTO) */
+            .content-wrapper {
+                width: 90% !important;
+                padding: 20px 0;
+            }
+            
+            .text-block { font-size: 1rem; }
+
+            /* Mete os vídeos um em cima do outro em vez de lado a lado */
+            .media-grid {
+                grid-template-columns: 1fr !important; 
+            }
+
+            /* 5. LIGHTBOX (ZOOM) */
+            .lightbox-content {
+                width: 95% !important;
+            }
+            .lightbox-close {
+                padding: 15px; /* Área de toque maior para o dedo */
+                font-size: 1.2rem;
+            }
+            
+            /* 6. FOOTER (JÁ TINHAS, MAS REFORÇO AQUI) */
+            .about-container {
+                flex-direction: column !important;
+                gap: 30px;
+            }
+            .about-image-wrapper { width: 150px; height: 150px; }
+            
+            /* 7. GERAL */
+            body { overflow-x: hidden; } /* Impede o site de "abanar" para os lados */
+        }
+
     </style>
 </head>
 <body>
