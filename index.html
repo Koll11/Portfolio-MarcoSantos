@@ -276,6 +276,9 @@
         display: flex;
         justify-content: center;
         border-top: 1px solid #111; /* Opcional: Linha subtil a separar */
+        box-sizing: border-box;
+        left: 0;
+        right: 0;
     }
 
     .footer-content {
@@ -691,7 +694,10 @@
 
             /* 4. FOOTER */
             .footer-section {
-                padding: 80px 20px !important;
+                padding: 80px 0 !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                width: 100% !important;
             }
 
             .footer-cta {
@@ -701,7 +707,7 @@
             .about-container {
                 flex-direction: column !important;
                 gap: 20px !important;
-                padding: 0 20px !important;
+                padding: 0 15px !important;
             }
 
             .about-image-wrapper { 
@@ -723,6 +729,7 @@
                 width: 100% !important;
                 max-width: 300px !important;
                 margin: 0 auto !important;
+                padding: 15px 30px !important;
             }
 
             .social-links {
