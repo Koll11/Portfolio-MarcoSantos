@@ -118,6 +118,11 @@
             padding: 8px 12px; font-size: 0.9rem; font-weight: bold; border-radius: 4px;
         }
 
+        /* Skills Container para Mobile */
+        .skills-container {
+            display: none;
+        }
+
         /* --- 3. NOVA SECÇÃO: PROJETOS (HORIZONTAL) --- */
         .projects-section {
             width: 100%;
@@ -277,6 +282,7 @@
         text-align: center;
         width: 100%;
         max-width: 1200px;
+        margin: 0 auto;
     }
 
     .footer-header {
@@ -579,69 +585,68 @@
                 bottom: auto !important;
                 left: auto !important;
                 transform: none !important;
-                margin-bottom: 30px; /* Espaço para as skills */
+                margin-bottom: 20px; /* Espaço para as skills */
                 z-index: 20;
             }
 
-            /* SKILLS - OBRIGAR A FICAR NO ECRÃ */
-/* --- CORREÇÃO DAS SKILLS (Força Bruta) --- */
-/* --- SKILLS NO MOBILE (Visíveis e Arrumadas) --- */
-/* --- SKILLS MOBILE FIX (Força Total) --- */
+            /* PROFILE CARD ESCONDIDA NO MOBILE */
+            .profile-card {
+                display: none !important;
+            }
+
+            /* SKILLS - MOSTRAR NO MOBILE */
             .skills-container {
-                /* 1. Obrigar a aparecer */
                 display: flex !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-                
-                /* 2. Layout */
                 flex-wrap: wrap !important;
                 justify-content: center !important;
-                gap: 10px !important;
-                
-                /* 3. Posição (Debaixo do Cargo, antes do Boneco) */
-                width: 95% !important;
-                margin: 20px auto 40px auto !important; /* Margem Top/Bottom */
+                gap: 8px !important;
+                width: 90% !important;
+                margin: 0 auto 30px auto !important;
                 position: relative !important;
                 transform: none !important;
-                z-index: 100 !important; /* Garante que fica por cima do boneco */
+                z-index: 100 !important;
             }
 
             .skill-tag {
-                /* 1. Estilo Visual (Ciano Cyberpunk) */
-                background: rgba(0, 0, 0, 0.8) !important; /* Fundo escuro para ler */
+                background: rgba(0, 0, 0, 0.8) !important;
                 border: 1px solid #00f0ff !important;
                 color: #00f0ff !important;
-                
-                /* 2. Texto */
                 font-family: monospace !important;
-                font-size: 0.85rem !important;
+                font-size: 0.75rem !important;
                 font-weight: bold !important;
                 text-transform: uppercase !important;
-                padding: 8px 12px !important;
+                padding: 6px 10px !important;
                 border-radius: 4px !important;
                 white-space: nowrap !important;
-                
-                /* 3. Reset de Animação */
                 opacity: 1 !important;
                 visibility: visible !important;
                 transform: none !important;
             }
 
-            /* 3. PROJETOS - CORREÇÃO DO PRIMEIRO E ÚLTIMO */
-/* --- CORREÇÃO DOS PROJETOS --- */
+            /* 3. PROJETOS - CORREÇÃO */
             .projects-section {
-                /* Isto empurra o texto "MISSION LOG" para baixo, longe do topo */
-                padding-top: 120px !important; 
-                
-                /* Isto garante que o fundo preto continua */
+                padding-top: 100px !important; 
                 display: block !important;
                 background: #000 !important;
                 height: auto !important;
+                min-height: 100vh;
+            }
+
+            .section-header {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                text-align: center !important;
+                margin-bottom: 50px !important;
+                padding: 0 20px !important;
+                font-size: 1.5rem !important;
             }
 
             .projects-section h1, 
             .projects-section h2 {
-                margin-bottom: 70px !important; /* Espaço entre o Título e o 1º Jogo */
+                margin-bottom: 70px !important;
                 position: relative !important;
                 transform: none !important;
                 text-align: center !important;
@@ -652,34 +657,83 @@
                 display: flex !important;
                 flex-direction: column !important; /* Lista Vertical */
                 width: 100% !important;
-                transform: none !important; /* Ignora scroll lateral */
+                gap: 30px !important;
                 padding: 0 !important;
-                gap: 40px;
+                align-items: center !important;
+            }
+
+            .horizontal-wrapper > a {
+                width: 100% !important;
+                max-width: 90vw !important;
+                margin: 0 !important;
+            }
+
+            .horizontal-wrapper > a:first-child,
+            .horizontal-wrapper > a:last-child {
+                margin: 0 !important;
             }
 
             .game-card {
-                /* FORÇA O TAMANHO REAL */
-                width: 90% !important;
-                height: 450px !important;
-                margin: 0 auto !important; /* Centrado */
-                
-                /* Anula animações de tamanho/blur */
+                width: 100% !important;
+                max-width: 90vw !important;
+                height: 400px !important;
+                margin: 0 auto !important;
                 transform: none !important; 
                 opacity: 1 !important;
                 filter: none !important;
+                flex-shrink: 0 !important;
             }
 
             /* Títulos dos jogos ajustados */
-            .game-info h2 { font-size: 1.8rem; }
+            .game-title { font-size: 1.5rem !important; }
+            .game-number { font-size: 0.7rem !important; }
+            .game-tags { font-size: 0.8rem !important; }
 
             /* 4. FOOTER */
+            .footer-section {
+                padding: 80px 20px !important;
+            }
+
+            .footer-cta {
+                font-size: 5vw !important;
+            }
+
             .about-container {
                 flex-direction: column !important;
-                gap: 20px;
-                padding: 0 20px;
+                gap: 20px !important;
+                padding: 0 20px !important;
             }
-            .about-image-wrapper { width: 140px; height: 140px; }
-            .about-text { text-align: center; }
+
+            .about-image-wrapper { 
+                width: 120px !important; 
+                height: 120px !important; 
+            }
+
+            .about-text { 
+                text-align: center !important;
+                font-size: 0.95rem !important;
+            }
+
+            .footer-actions {
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+
+            .action-btn {
+                width: 100% !important;
+                max-width: 300px !important;
+                margin: 0 auto !important;
+            }
+
+            .social-links {
+                gap: 20px !important;
+                flex-wrap: wrap !important;
+            }
+
+            /* Remover scroll-hint no mobile */
+            .scroll-hint {
+                display: none !important;
+            }
         }
 
     </style>
@@ -702,6 +756,16 @@
         </div>
         <h1 class="hero-title">MARCO<br>SANTOS</h1>
         <div class="role-badge">GAMEPLAY PROGRAMMER</div>
+
+        <!-- Skills visíveis no mobile -->
+        <div class="skills-container">
+            <div class="skill-tag">UNITY</div>
+            <div class="skill-tag">UNREAL ENGINE</div>
+            <div class="skill-tag">ROBLOX</div>
+            <div class="skill-tag">C#</div>
+            <div class="skill-tag">BLUEPRINT</div>
+            <div class="skill-tag">LUAU</div>
+        </div>
 
         <div class="profile-card">
             <div class="profile-header">
