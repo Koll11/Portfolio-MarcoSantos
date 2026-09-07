@@ -1,0 +1,15 @@
+/* Phase 1 repairs only. Case-study composition is retained for later phases. */
+body { cursor: auto; }
+.cursor-dot, .cursor-outline, .loading-screen { display: none !important; }
+:focus-visible { outline: 2px solid #f1eee7 !important; outline-offset: 6px; }
+.lightbox-close { border: 1px solid #999; background: #151515; color: #eee; padding: 12px 18px; }
+.hero-bg { background-image: none; }
+@media (max-width:768px) {
+  .next-title { font-size: clamp(24px,7vw,48px); overflow-wrap: anywhere; padding: 0 20px; }
+  .project-meta { letter-spacing: 2px; font-size: .8rem; }
+}
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior: auto !important; }
+  *,*::before,*::after { animation: none !important; transition: none !important; }
+  .project-title,.stat-item,.section-title,.text-block,.project-video { opacity: 1 !important; visibility: visible !important; transform: none !important; }
+}

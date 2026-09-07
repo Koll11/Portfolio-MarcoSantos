@@ -1,478 +1,65 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Detail | Gameplay Programmer</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-    <style>
-        /* --- 1. VARIÁVEIS DO PROJETO (SÓ MUDAS ISTO AQUI) --- */
-        :root {
-            /* MUDAR ESTA COR EM CADA FICHEIRO */
-            --project-color: rgba(107, 38, 36, 1); /* Vermelho para Nocturne */
-            --project-glow: rgba(195, 24, 24, 0.773);
-        }
-
-        /* --- 2. BASE --- */
-        body {
-            margin: 0; padding: 0;
-            background-color: #050505;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            cursor: none;
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--project-color); }
-
-        /* --- 3. UI COMUM (Cursor & Loading) --- */
-        .cursor-dot, .cursor-outline {
-            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
-            pointer-events: none; z-index: 9999; border-radius: 50%; mix-blend-mode: difference;
-        }
-        .cursor-dot { width: 8px; height: 8px; background: var(--project-color); }
-        .cursor-outline { width: 40px; height: 40px; border: 1px solid var(--project-color); transition: 0.2s; }
-        
-        .loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center;
-        }
-        .loading-bar { width: 0%; height: 2px; background: var(--project-color); box-shadow: 0 0 15px var(--project-color); }
-
-        /* --- 4. HERO SECTION --- */
-        .project-hero {
-            height: 80vh; width: 100%; position: relative;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border-bottom: 1px solid #222; overflow: hidden;
-        }
-
-        /* Imagem de Fundo com Blur */
-        .hero-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* AQUI METES A IMAGEM DO PROJETO */
-            background-image: url('caminho/para/imagem_nocturne.jpg'); 
-            background-size: cover; background-position: center;
-            opacity: 0.3; filter: blur(10px) grayscale(50%); z-index: 0;
-        }
-
-        .back-btn {
-            position: absolute; top: 40px; left: 40px; z-index: 20;
-            font-family: 'JetBrains Mono', monospace; text-decoration: none;
-            color: #888; font-size: 0.9rem; border: 1px solid #333; padding: 10px 20px;
-            background: rgba(0,0,0,0.8); transition: 0.3s;
-        }
-        .back-btn:hover { color: var(--project-color); border-color: var(--project-color); }
-
-        .hero-content {
-            z-index: 2; text-align: center;
-        }
-
-        .project-title {
-            font-size: 8vw; line-height: 0.9; text-transform: uppercase; margin: 0;
-            text-shadow: 0 0 50px var(--project-glow);
-        }
-
-        .project-meta {
-            font-family: 'JetBrains Mono', monospace; color: var(--project-color);
-            margin-top: 20px; letter-spacing: 4px; font-size: 1rem;
-        }
-
-        /* --- 5. GRID DE DADOS (STATS) --- */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1px; background: #222; border-bottom: 1px solid #222;
-        }
-        .stat-item {
-            background: #000; padding: 40px 20px; text-align: center;
-        }
-        .stat-label {
-            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #666; margin-bottom: 10px;
-        }
-        .stat-value {
-            font-family: 'Inter', sans-serif; font-weight: bold; font-size: 1.2rem; color: white;
-        }
-
-        /* --- 6. CONTEÚDO PRINCIPAL --- */
-        .content-wrapper {
-            max-width: 900px; margin: 100px auto; padding: 0 20px;
-        }
-
-        .section-title {
-            font-family: 'JetBrains Mono', monospace; color: var(--project-color);
-            font-size: 1.5rem; margin-bottom: 30px; border-left: 3px solid var(--project-color);
-            padding-left: 20px; display: flex; align-items: center; gap: 10px;
-        }
-        
-        .text-block {
-            font-size: 1.1rem; line-height: 1.6; color: #ccc; margin-bottom: 60px;
-        }
-
-        /* CODE BLOCK (Estilo VS Code) */
-        .code-block {
-            background: #111; border: 1px solid #333; border-radius: 8px; padding: 20px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #ddd;
-            overflow-x: auto; margin-bottom: 60px; position: relative;
-        }
-        .code-header {
-            position: absolute; top: 0; left: 0; width: 100%; background: #1a1a1a;
-            padding: 5px 15px; font-size: 0.7rem; color: #666; border-bottom: 1px solid #333;
-            box-sizing: border-box;
-        }
-        .code-content { margin-top: 25px; line-height: 1.5; }
-        .keyword { color: #c678dd; } /* Roxo */
-        .function { color: #61afef; } /* Azul */
-        .string { color: #98c379; } /* Verde */
-        .comment { color: #5c6370; font-style: italic; }
-
-        /* IMAGEM NO MEIO DO TEXTO */
-        .project-img {
-            width: 100%; border-radius: 10px; margin-bottom: 60px;
-            border: 1px solid #333;
-        }
-
-        /* --- 7. FOOTER --- */
-        .next-project {
-            height: 40vh; display: flex; justify-content: center; align-items: center;
-            background: #080808; border-top: 1px solid #222; text-decoration: none;
-            transition: 0.3s;
-        }
-        .next-project:hover { background: #111; }
-        .next-label {
-            font-family: 'JetBrains Mono', monospace; color: #666; font-size: 1rem; margin-bottom: 10px;
-        }
-        .next-title {
-            font-size: 4rem; color: white; margin: 0; text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .next-project:hover .next-title { color: var(--project-color); text-shadow: 0 0 30px var(--project-glow); }
-
-        .media-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
-            gap: 20px; /* Espaço entre os vídeos */
-            margin-bottom: 60px;
-        }
-
-        /* --- VIDEOS PEQUENOS (Grid) --- */
-        .project-video {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            border: 1px solid #333;
-            display: block; 
-            cursor: pointer; /* Mostra que é clicável */
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
-        .project-video:hover {
-            transform: scale(1.02); /* Pequeno zoom ao passar o rato */
-            border-color: var(--project-color);
-            box-shadow: 0 0 20px var(--project-glow);
-        }
-
-        /* --- LIGHTBOX (O Popup Gigante) --- */
-        .video-lightbox {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10000; /* Fica por cima de TUDO */
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; /* Escondido inicialmente */
-            transition: opacity 0.3s ease;
-        }
-
-        /* Quando ativamos a classe 'active', ele aparece */
-        .video-lightbox.active { opacity: 1; pointer-events: all; }
-
-        .lightbox-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); /* Fundo quase preto */
-            backdrop-filter: blur(5px);
-        }
-
-        .lightbox-content {
-            position: relative; z-index: 10001; width: 80%; max-width: 1200px;
-            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
-        }
-
-        .lightbox-player {
-            width: 100%; height: auto;
-            border: 1px solid var(--project-color);
-            border-radius: 8px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-        }
-
-        .lightbox-close {
-            font-family: 'JetBrains Mono', monospace; color: #666; cursor: pointer;
-            font-size: 0.9rem; transition: 0.3s;
-        }
-        .lightbox-close:hover { color: var(--project-color); }
-
-                /* --- CORREÇÃO FINAL DO CURSOR NO LIGHTBOX --- */
-        
-        /* Quando o body tem a classe 'lightbox-active' (lightbox aberto) */
-        body.lightbox-active .cursor-dot,
-        body.lightbox-active .cursor-outline {
-            /* 1. Desliga o modo que o torna invisível no preto */
-            mix-blend-mode: normal !important; 
-            
-            /* 2. Força a cor Ciano brilhante para se ver bem */
-            background: #a50d0d !important;
-            border-color: #4d0505 !important;
-            box-shadow: 0 0 20px #520e0e; /* Um brilhozinho extra */
-
-            /* 3. Z-Index máximo possível num browser (para ter a certeza absoluta) */
-            z-index: 2147483647 !important; 
-        }
-
-        /* =========================================
-           MOBILE FIXES (Tudo o que é < 768px)
-           ========================================= */
-        @media (max-width: 768px) {
-            
-            /* 1. MATA O CURSOR PERSONALIZADO (Telemóvel não tem rato) */
-            .cursor-dot, .cursor-outline { display: none !important; }
-            * { cursor: auto !important; }
-            
-            /* 2. AJUSTA O HERO (TEXTO E BONECO) */
-            .hero-title {
-                font-size: 15vw !important; /* Texto mais pequeno */
-                top: 30% !important; /* Sobe o texto para não ficar atrás do boneco */
-                width: 90%;
-                left: 5%;
-                transform: none !important; /* Remove transformações complexas */
-                text-align: center;
-            }
-
-            .role-badge {
-                bottom: 15% !important; /* Sobe a badge */
-                font-size: 0.8rem;
-                padding: 8px 16px;
-            }
-
-            .character-container {
-                right: -30% !important; /* Empurra o boneco para a direita */
-                width: 120% !important; /* Aumenta para ocupar o fundo */
-                opacity: 0.6; /* Um pouco mais transparente para ler o texto */
-            }
-
-            /* 3. PROJETOS (AJUSTA OS CARTÕES PARA O TAMANHO DO ECRÃ) */
-            .game-card {
-                width: 85vw !important; /* Cartão ocupa 85% da largura do telemóvel */
-                height: 60vh !important; /* Menos alto */
-                margin-right: 15px; /* Menos espaço entre cartões */
-            }
-            
-            .game-info h2 { font-size: 2rem; } /* Título do jogo mais pequeno */
-
-            /* 4. PÁGINAS DE PROJETO (VIDEO CLIPS E TEXTO) */
-            .content-wrapper {
-                width: 90% !important;
-                padding: 20px 0;
-            }
-            
-            .text-block { font-size: 1rem; }
-
-            /* Mete os vídeos um em cima do outro em vez de lado a lado */
-            .media-grid {
-                grid-template-columns: 1fr !important; 
-            }
-
-            /* 5. LIGHTBOX (ZOOM) */
-            .lightbox-content {
-                width: 95% !important;
-            }
-            .lightbox-close {
-                padding: 15px; /* Área de toque maior para o dedo */
-                font-size: 1.2rem;
-            }
-            
-            /* 6. FOOTER (JÁ TINHAS, MAS REFORÇO AQUI) */
-            .about-container {
-                flex-direction: column !important;
-                gap: 30px;
-            }
-            .about-image-wrapper { width: 150px; height: 150px; }
-            
-            /* 7. GERAL */
-            body { overflow-x: hidden; } /* Impede o site de "abanar" para os lados */
-        }
-
-    </style>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nocturne Battlegrounds — Marco Santos</title>
+  <meta name="description" content="Raycast combat and client-server replication in Nocturne Battlegrounds, a gothic multiplayer arena built in Roblox and Luau.">
+  <meta name="theme-color" content="#100c10">
+  <link rel="stylesheet" href="assets/css/tokens.css"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/nocturne-case.css">
+  <script src="assets/js/case-media.js" defer></script>
+<link rel="stylesheet" href="assets/css/polish.css"><script src="assets/js/polish.js" defer></script>
 </head>
-<body>
-
-    <div class="loading-screen"><div class="loading-bar"></div></div>
-    <div class="cursor-dot"></div><div class="cursor-outline"></div>
-
-    <div class="project-hero">
-        <div class="hero-bg"></div> <a href="index.html" class="back-btn">< RETURN TO BASE</a>
-        
-        <div class="hero-content">
-            <h1 class="project-title">NOCTURNE<br>BATTLEGROUNDS</h1>
-            <div class="project-meta">MISSION 01 // ROBLOX</div>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-item">
-            <div class="stat-label">ROLE</div>
-            <div class="stat-value">Gameplay Programmer</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">ENGINE</div>
-            <div class="stat-value">ROBLOX</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">LANGUAGE</div>
-            <div class="stat-value">LUAU</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">STATUS</div>
-            <div class="stat-value">Released</div>
-        </div>
-    </div>
-
-    <div class="content-wrapper">
-        
-        <div class="section-title">01. OVERVIEW</div>
-        <div class="text-block">
-            Nocturne Battlegrounds is a multiplayer arena pvp game where vampires fight for supremacy in a gothic town, their greatest enemy being the sun itself.
-            My main responsibility was implementing the <strong>Combat System</strong> and <strong>Network Replication</strong> 
-            to ensure lag-free combat for up to 15 players.
-        </div>
-
-        <div class="media-grid">
-            <video class="project-video" autoplay loop muted playsinline>
-                <source src="NocturneBattlegrounds/NocturneBGClip1.mp4" type="video/mp4">
-            </video>
-            
-            <video class="project-video" autoplay loop muted playsinline>
-                <source src="NocturneBattlegrounds/NocturneBGClip2.mp4" type="video/mp4">
-            </video>
-        </div>
-
-        <div class="section-title">02. TECHNICAL CHALLENGE: COMBAT SYSTEM</div>
-        <div class="text-block">
-            Designing a responsive and satisfying combat system was a major challenge. 
-            I implemented a raycast system that calculates hit detection in real-time, 
-            ensuring accurate punches even at low duration hitboxes.
-        </div>
-
-        <div class="section-title">03. TECHNICAL CHALLENGE: NETWORK REPLICATION</div>
-        <div class="text-block">
-            I created a Client-server communication that creates attacks on the client and then validates them on the server, 
-            if the attack is valid, the server replicates the vfx's to all clients. This approach minimizes latency and ensures a smooth gameplay experience for all players.
-        </div>
-
-        <div class="code-block">
-                    <div class="code-header">CombatSystem.server.lua</div>
-                    
-                    <div class="code-content" style="white-space: pre-wrap;">
-        <span class="keyword">UIS.InputEnded:Connect</span>(<span class="function">function</span>(I, E)
-            <span class="comment">-- Calls the server when input is ended</span>
-            <span class="keyword">if</span> I.UserInputType == Enum.UserInputType.MouseButton1 <span class="keyword">then</span>
-                <span class="keyword">if</span> combo == 1 <span class="keyword">then</span>
-                    game.ReplicatedStorage.MainEvent:<span class="function">FireServer</span>(<span class="string">"Regular1"</span>)
-                    enemyChar:<span class="function">SetAttribute</span>(<span class="string">"Stunned"</span>, <span class="keyword">true</span>)
-                    enemyHum:<span class="function">TakeDamage</span>(DAMAGE)
-                <span class="keyword">end</span>
-            <span class="keyword">end</span>
-        <span class="keyword">end</span>)
-                    </div>
-                </div>
-
-    <div class="video-lightbox">
-        <div class="lightbox-bg"></div> <div class="lightbox-content">
-            <video class="lightbox-player" controls autoplay>
-                <source src="" type="video/mp4">
-            </video>
-            <div class="lightbox-close">CLOSE FEED [X]</div>
-        </div>
-    </div>
-
-        </div> <a href="cyber.html" class="next-project">
-        <div style="text-align: center;">
-            <div class="next-label">NEXT MISSION</div>
-            <h2 class="next-title">CYBER ENG. ></h2>
-        </div>
-    </a>
-
-
-    <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        // LOADING
-        const loadingBar = document.querySelector('.loading-bar');
-        const loadingScreen = document.querySelector('.loading-screen');
-        gsap.to(loadingBar, { width: "100%", duration: 1, ease: "power2.inOut", onComplete: () => {
-            gsap.to(loadingScreen, { opacity: 0, duration: 0.5, onComplete: () => loadingScreen.remove() });
-        }});
-
-        // CURSOR
-        const cursorDot = document.querySelector('.cursor-dot');
-        const cursorOutline = document.querySelector('.cursor-outline');
-        window.addEventListener("mousemove", (e) => {
-            cursorDot.style.left = `${e.clientX}px`;
-            cursorDot.style.top = `${e.clientY}px`;
-            cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
-        });
-
-        // ANIMATIONS
-        gsap.from(".project-title", { y: 100, opacity: 0, duration: 1, delay: 0.5 });
-        gsap.from(".stat-item", { y: 20, opacity: 0, duration: 0.5, stagger: 0.1, delay: 0.8 });
-        
-        gsap.utils.toArray(".section-title").forEach(title => {
-            gsap.from(title, {
-                scrollTrigger: { trigger: title, start: "top 80%" },
-                x: -50, opacity: 0, duration: 0.8
-            });
-        });
-
-        // --- LIGHTBOX LÓGICA ---
-        const lightbox = document.querySelector('.video-lightbox');
-        const lightboxPlayer = document.querySelector('.lightbox-player');
-        const lightboxBg = document.querySelector('.lightbox-bg');
-        const lightboxClose = document.querySelector('.lightbox-close');
-        
-        // Seleciona todos os vídeos da grelha
-        const gridVideos = document.querySelectorAll('.project-video');
-
-        gridVideos.forEach(vid => {
-            vid.addEventListener('click', function() {
-                // 1. Pega no ficheiro do vídeo clicado
-                const source = this.querySelector('source').src;
-                
-                // 2. Mete esse ficheiro no leitor grande
-                lightboxPlayer.src = source;
-                document.body.classList.add('lightbox-active');
-                
-                // 3. Mostra o Lightbox
-                lightbox.classList.add('active');
-                
-                // 4. Começa a tocar com som
-                lightboxPlayer.muted = false; 
-                lightboxPlayer.play();
-            });
-        });
-
-        // Função para fechar
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            document.body.classList.remove('lightbox-active');
-            lightboxPlayer.pause();
-            lightboxPlayer.src = ""; // Limpa para não continuar a gastar memória
-        }
-
-        lightboxBg.addEventListener('click', closeLightbox);
-        lightboxClose.addEventListener('click', closeLightbox);
-
-    </script>
+<body class="nocturne-case">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="case-header"><a href="index.html" class="case-wordmark" aria-label="Marco Santos, homepage">MS <span>Marco Santos</span></a><nav aria-label="Project navigation"><a href="index.html#work">All work</a><a href="#systems">The systems</a><a href="index.html#contact">Contact</a></nav></header>
+  <main id="main">
+    <section class="case-hero" aria-labelledby="project-title">
+      <img class="case-hero-image" src="assets/media/nocturne-world.webp" width="1295" height="793" fetchpriority="high" alt="A gothic cathedral and lantern-lit town beneath a giant moon" decoding="async">
+      <div class="case-hero-top"><span>Selected project / 01</span><span>Roblox · Luau</span></div>
+      <div class="case-hero-title"><p class="eyebrow">Multiplayer combat / Gameplay programmer</p><h1 id="project-title">NOCTURNE<span>BATTLEGROUNDS</span></h1></div>
+      <div class="case-hero-bottom"><p>A town after dark.<br>A fight for supremacy.</p><a href="#overview">Enter the case study <span aria-hidden="true">↓</span></a></div>
+    </section>
+    <section class="case-overview case-section" id="overview" aria-labelledby="overview-title">
+      <div class="case-section-label"><span>01 / The world</span><span>Vampires. Rivals. Sunlight.</span></div>
+      <div class="case-overview-grid"><h2 id="overview-title">The night belongs<br>to no one.</h2><div class="case-copy"><p class="case-lead">Vampires fight for supremacy in a gothic town. Their greatest enemy is the sun itself.</p><p>Nocturne Battlegrounds is a multiplayer arena PvP game built in Roblox. My work focused on the combat system and network replication: making attacks feel immediate while keeping their effects coordinated across players.</p></div></div>
+      <dl class="case-facts"><div><dt>My role</dt><dd>Gameplay programmer</dd></div><div><dt>Built with</dt><dd>Roblox / Luau</dd></div><div><dt>Context</dt><dd>Multiplayer arena PvP</dd></div><div><dt>Project status</dt><dd>Released</dd></div></dl>
+    </section>
+    <section class="case-contributions case-section" aria-labelledby="contributions-title">
+      <div class="case-section-label"><span>02 / My contributions</span><span>From the first input to shared feedback</span></div>
+      <h2 id="contributions-title">The feel of a hit.<br>The logic behind it.</h2>
+      <div class="case-contribution-row"><span class="case-number">01</span><div><h3>Combat & hit detection</h3><p>Raycast-based hit detection for punches with short active windows.</p></div><a href="#combat" aria-label="Explore combat and hit detection">Explore ↗</a></div>
+      <div class="case-contribution-row"><span class="case-number">02</span><div><h3>Network replication</h3><p>Client-initiated attacks, server validation and VFX shared across clients.</p></div><a href="#replication" aria-label="Explore network replication">Explore ↗</a></div>
+      <p class="case-contribution-note">A combat system designed around multiplayer encounters of up to 15 players.</p>
+    </section>
+    <section class="case-combat" id="combat" aria-labelledby="combat-title">
+      <div class="case-feature-heading"><div><p class="eyebrow">03 / Gameplay → Combat</p><h2 id="combat-title">A short window.<br>A decisive hit.</h2></div><p>Punches need to connect when the player expects them to. The footage is the starting point; the hit detection is what makes it possible.</p></div>
+      <figure class="case-film"><div class="case-film-stage"><video controls muted playsinline preload="none" poster="assets/media/nocturne-case/combat-1-9.webp" data-clip="assets/media/nocturne-case/combat-1.mp4" aria-label="Nocturne close-range combat gameplay"></video><button class="case-play" type="button" hidden aria-label="Play close-range combat gameplay">Play combat <span aria-hidden="true">↗</span></button></div><figcaption><span>01 / Close-range combat</span><span>Gameplay capture · 19 seconds</span></figcaption></figure>
+      <div class="case-insight"><span class="eyebrow">Technical focus / Raycasts</span><p>I implemented real-time raycast hit detection to register punches within short hitbox durations.</p><p class="case-insight-note">The challenge is timing: a brief attack window still needs to produce a clear, satisfying connection.</p></div>
+    </section>
+    <section class="case-system case-section" id="systems" aria-labelledby="systems-title">
+      <div class="case-section-label"><span>04 / Inside the system</span><span>Client → Server → All clients</span></div>
+      <div class="case-system-heading"><h2 id="systems-title">One attack.<br>A shared result.</h2><p>An outline of the combat and replication flow. Immediate initiation on the client, validation on the server, feedback across the encounter.</p></div>
+      <ol class="case-flow" aria-label="Combat and replication flow">
+        <li><span class="case-flow-owner">Client</span><span class="case-flow-number">01</span><h3>Player input</h3><p>The player initiates an attack.</p></li>
+        <li><span class="case-flow-owner">Combat</span><span class="case-flow-number">02</span><h3>Attack & hit test</h3><p>Raycasts detect contact within the active window.</p></li>
+        <li><span class="case-flow-owner">Server</span><span class="case-flow-number">03</span><h3>Validation</h3><p>The server checks whether the attack is valid.</p></li>
+        <li><span class="case-flow-owner">All clients</span><span class="case-flow-number">04</span><h3>Shared feedback</h3><p>Validated attack VFX are replicated to clients.</p></li>
+      </ol>
+      <div class="case-system-note"><span aria-hidden="true">↳</span><p>Server validation is the boundary.<br><strong>Only validated attacks enter the VFX replication path.</strong></p></div>
+    </section>
+    <section class="case-replication case-section" id="replication" aria-labelledby="replication-title">
+      <div class="case-section-label"><span>05 / System → Gameplay</span><span>Network replication</span></div>
+      <div class="case-replication-grid"><div class="case-replication-copy"><h2 id="replication-title">Local response.<br>Shared impact.</h2><p class="case-lead">An attack begins on one machine. Its feedback needs to reach the others.</p><p>I built client-server communication that initiates attacks locally, validates them on the server and replicates their VFX when accepted.</p><p class="case-margin-note">The goal: reduce perceived delay while keeping the encounter visually consistent.</p></div><figure class="case-film"><div class="case-film-stage"><video controls muted playsinline preload="none" poster="assets/media/nocturne-case/combat-2-9.webp" data-clip="assets/media/nocturne-case/combat-2.mp4" aria-label="Nocturne attack and visual feedback gameplay"></video><button class="case-play" type="button" hidden aria-label="Play attack and visual feedback gameplay">Play gameplay <span aria-hidden="true">↗</span></button></div><figcaption><span>02 / Attacks in play</span><span>21 seconds</span></figcaption></figure></div>
+    </section>
+    <section class="case-showcase" aria-labelledby="showcase-title">
+      <div class="case-showcase-heading"><p class="eyebrow">06 / Back in the world</p><h2 id="showcase-title">Beyond the hit.</h2><p>The combat lives inside a town of narrow streets, open squares and changing light.</p></div>
+      <figure class="case-town"><img src="assets/media/nocturne-case/town-day.webp" width="1295" height="793" loading="lazy" alt="Sunlight falls across the cathedral, fog and cobbled town square" decoding="async"><figcaption><span>The same town. A different threat.</span><span>Environment / Sunlight</span></figcaption></figure>
+      <div class="case-moments"><figure><img src="assets/media/nocturne-case/combat-1-4.webp" width="1280" height="720" loading="lazy" alt="A vampire faces nearby targets in the town square" decoding="async"><figcaption>01 / Closing the distance</figcaption></figure><figure><img src="assets/media/nocturne-case/combat-2-14.webp" width="1280" height="720" loading="lazy" alt="A vampire attacks near several targets with red feedback visible" decoding="async"><figcaption>02 / Reading the encounter</figcaption></figure></div>
+    </section>
+    <section class="case-outcome case-section" aria-labelledby="outcome-title"><div class="case-section-label"><span>07 / Takeaways</span><span>Responsiveness is a systems problem</span></div><div class="case-outcome-grid"><h2 id="outcome-title">Combat feel reaches<br>across the network.</h2><div><p class="case-lead">Hit timing and replication have to be designed together.</p><p>The work brought raycast detection, client-side attack initiation and server validation into one combat flow. It made the relationship between local responsiveness and shared feedback central to the design.</p><p class="case-margin-note">The technical focus: short hit windows, clear validation boundaries and consistent visual feedback.</p><a class="text-link" href="https://www.roblox.com/games/98777141866215/Nocturne-Battlegrounds" target="_blank" rel="noopener" aria-label="Visit Nocturne Battlegrounds on Roblox, opens in a new tab">View on Roblox <span aria-hidden="true">↗</span></a></div></div></section>
+    <a class="case-next" href="cyber.html"><span class="eyebrow">Next project / 02</span><span class="case-next-title">CYBER<br>ENGINEER <span aria-hidden="true">↗</span></span><span class="case-next-meta">Unity / C# / Action roguelike</span></a>
+  </main>
+  <footer class="case-footer"><a href="index.html">Marco Santos / Gameplay programmer</a><a href="index.html#work">All selected work ↗</a><a href="#main">Back to top ↑</a></footer>
+  <noscript><style>.case-film-stage video { display:none; }.case-film-stage::before { content:'Gameplay poster — enable JavaScript to play'; display:block; padding:35% 20px 20px; color:white; background:center/cover url('assets/media/nocturne-case/combat-1-9.webp'); }</style></noscript>
 </body>
 </html>

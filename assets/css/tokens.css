@@ -1,0 +1,12 @@
+:root {
+  --ink: #151515;
+  --paper: #eeeae2;
+  --background: #111110;
+  --muted: #aaa9a2;
+  --line: rgba(238,234,226,.23);
+  --display: 'Inter Tight', Arial, sans-serif;
+  --sans: 'Inter', Arial, sans-serif;
+  --gutter: clamp(24px, 4.5vw, 88px);
+  --header-height: 76px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}

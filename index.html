@@ -1,1120 +1,126 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!doctype html>
+<html lang="en" data-type="tight">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Santos | Gameplay Programmer</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-    <style>
-        /* --- 1. BASE --- */
-        body {
-            margin: 0; padding: 0;
-            background-color: #000000;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden; /* Importante para o scroll horizontal não criar barra em baixo */
-            opacity: 0; animation: fadeInPage 1.5s ease-out forwards;
-        }
-
-        @keyframes fadeInPage { to { opacity: 1; } }
-
-        /* --- 2. HERO WRAPPER (INTRO) --- */
-        .hero-wrapper {
-            height: 100vh;
-            width: 100%;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            overflow: hidden;
-            z-index: 10; /* Fica por cima inicialmente */
-        }
-
-        .loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease; pointer-events: none;
-        }
-        .loading-bar {
-            width: 0%; height: 2px; background: #00f0ff;
-            box-shadow: 0 0 10px #00f0ff;
-            transition: width 0.5s ease;
-        }
-
-        /* Elementos da Intro (Iguais ao anterior) */
-        .spotlight {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 750px;
-            height: 750px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-
-            background: radial-gradient(
-                circle,
-                rgba(0, 80, 255, 0.6) 0%,
-                rgba(0, 80, 255, 0.4) 30%,
-                rgba(0, 80, 255, 0.15) 55%,
-                transparent 70%
-            );
-        }
-        .character-container {
-            position: relative; z-index: 1; height: 90vh; width: auto;
-            display: flex; align-items: flex-end; pointer-events: none; will-change: transform;
-        }
-        .character-img { height: 100%; width: auto; filter: drop-shadow(0 0 15px rgba(0,0,0,0.9)); }
-        
-        .hero-title {
-            position: absolute;
-            top: 45%;
-            left: 0;           /* Encosta à esquerda */
-            width: 100%;       /* Ocupa a largura total do ecrã */
-            text-align: center; /* O texto centra-se automaticamente */
-            transform: translateY(-50%); /* Centra só verticalmente */
-            
-            /* O resto mantém igual */
-            font-size: 18vw; 
-            line-height: 0.8; 
-            margin: 0; 
-            color: #ffffff;
-            z-index: 2; 
-            white-space: nowrap; 
-            pointer-events: none;
-            will-change: transform;
-        }
-        .role-badge {
-            position: absolute; 
-            bottom: 120px; /* Mudado de 50px para 120px para dar espaço à seta */
-            left: 22%; 
-            transform: translateX(-50%);
-            z-index: 3; 
-            font-family: 'JetBrains Mono', monospace; 
-            color: #00f0ff;
-            font-size: 1rem; 
-            letter-spacing: 4px; 
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-        }
-        /* Card FM */
-        .profile-card {
-            position: absolute; top: 50%; right: 15%; transform: translateY(-50%);
-            width: 350px; opacity: 0; z-index: 4; font-family: 'JetBrains Mono', monospace;
-        }
-        .profile-header { border-bottom: 2px solid #00f0ff; margin-bottom: 20px; padding-bottom: 10px; }
-        .profile-name { font-size: 1.5rem; font-weight: 700; color: white; }
-        .profile-sub { font-size: 0.8rem; color: #888; letter-spacing: 2px; }
-        .skills-list { display: flex; flex-wrap: wrap; gap: 10px; }
-        .skill-tag {
-            background: rgba(0, 240, 255, 0.1); border: 1px solid #00f0ff; color: #00f0ff;
-            padding: 8px 12px; font-size: 0.9rem; font-weight: bold; border-radius: 4px;
-        }
-
-        /* Skills Container para Mobile */
-        .skills-container {
-            display: none;
-        }
-
-        /* --- 3. NOVA SECÇÃO: PROJETOS (HORIZONTAL) --- */
-        .projects-section {
-            width: 100%;
-            height: 100vh; /* Ocupa o ecrã todo */
-            background-color: #000000; /* Um pouco mais escuro para contraste */
-            display: flex;
-            align-items: center;
-            overflow: hidden; /* Esconde o que está fora do ecrã */
-            position: relative;
-            z-index: 5;
-            transition: background-color 1s ease; 
-            perspective: 1000px; /* Necessário para o 3D Tilt */
-        }
-
-        .code-particles-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1; overflow: hidden;
-        }
-
-        .code-particle {
-            position: absolute;
-            color: rgba(0, 240, 255, 0.15);
-            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
-            user-select: none; white-space: nowrap;
-        }
-
-        .section-header {
-            position: absolute;
-            top: 50px; left: 50px;
-            font-family: 'Inter', sans-serif;
-            font-size: 2rem;
-            color: #333;
-            text-transform: uppercase;
-            font-weight: 900;
-            z-index: 20;
-        }
-
-        /* O contentor comprido que vai deslizar */
-        .horizontal-wrapper {
-            display: flex;
-            gap: 100px; /* Espaço entre cartões */
-            width: max-content;
-        }
-
-        /* NOVO: Estilo para os Links (<a>) que envolvem os cartões */
-        .horizontal-wrapper > a {
-            display: block;        /* Comporta-se como uma caixa */
-            text-decoration: none; /* Remove sublinhados */
-            flex-shrink: 0;        /* Impede que encolham */
-            outline: none;
-        }
-
-        /* As margens de alinhamento passam para os LINKS */
-        .horizontal-wrapper > a:first-child {
-            margin-left: 20vw; /* Empurra o primeiro link */
-        }
-
-        .horizontal-wrapper > a:last-child {
-            margin-right: 20vw; /* Dá espaço ao último link */
-        }
-
-        /* O Cartão do Jogo */
-        .game-card {
-            width: 60vw; /* Largura grande */
-            max-width: 800px;
-            height: 70vh;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s;
-            overflow: hidden;
-            flex-shrink: 0; /* Impede que encolham */
-            transform-style: preserve-3d; /* Permite elementos 3D */
-            z-index: 10; /* Garante que fica à frente das partículas */
-            will-change: transform;
-            background: rgba(10, 10, 10, 0.95); /* Ligeiramente transparente para ver o glow */
-            margin: 0 !important;
-        }
-
-        .game-card:first-child {
-            margin-left: 20vw; /* (100vw ecrã - 60vw cartão) / 2 = 20vw */
-        }
-
-        /* 3. Empurra o ÚLTIMO cartão para ter espaço no fim */
-        .game-card:last-child {
-            margin-right: 20vw;
-        }
-
-        .game-card:hover { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.1); }
-
-        /* Imagem do Jogo */
-        .game-image {
-            height: 70%;
-            width: 100%;
-            background-color: #151515; /* Cor de fundo caso não tenhas img ainda */
-            background-size: cover;
-            background-position: center;
-            border-bottom: 1px solid #333;
-        }
-
-        /* Info do Jogo */
-        .game-info {
-            padding: 30px;
-            height: 30%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .game-number { color: #00f0ff; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 10px; }
-        .game-title { font-family: 'Inter', sans-serif; font-size: 2.5rem; font-weight: 900; margin: 0; color: white; text-transform: uppercase; }
-        .game-tags { margin-top: 10px; color: #666; font-size: 0.9rem; }
-
-        /* Adiciona isto ao CSS */
-
-        /* Otimização para a Silhueta e Títulos */
-        .character-container, .character-img, .hero-title, .spotlight {
-            /* Diz ao browser que isto vai mexer, para ele preparar a renderização */
-            will-change: transform;
-            /* Evita tremores em ecrãs de alta resolução */
-            backface-visibility: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Otimização para os Cartões dos Jogos (Scroll Horizontal) */
-        .game-card {
-            will-change: transform;
-            /* Garante que o cartão está numa camada separada */
-            transform: translateZ(0); 
-        }
-
-        /* --- SECÇÃO 4: FOOTER --- */
-    .footer-section {
-        width: 100%;
-        height: auto;
-        background-color: #000000;
-        position: relative;
-        z-index: 10;
-        
-        /* MUDANÇA 1: Puxa o footer para cima para comer o espaço vazio dos projetos */
-        /* Como os cartões ocupam 70vh, sobram 15vh em baixo. Puxamos -15vh para colar. */
-        margin-top: -50vh; 
-        
-        /* MUDANÇA 2: Reduzimos o padding do topo para o texto não ficar longe */
-        padding: 50px 0 100px 0; 
-        
-        display: flex;
-        justify-content: center;
-        border-top: 1px solid #111; /* Opcional: Linha subtil a separar */
-        box-sizing: border-box;
-        left: 0;
-        right: 0;
-    }
-
-    .footer-content {
-        text-align: center;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .footer-header {
-        font-family: 'JetBrains Mono', monospace;
-        color: #00f0ff;
-        font-size: 1rem;
-        letter-spacing: 5px;
-        margin-bottom: 20px;
-        opacity: 0.7;
-    }
-
-    .footer-cta {
-        font-size: 8vw; /* Gigante e responsivo */
-        line-height: 0.9;
-        margin: 0 0 50px 0;
-        color: white;
-        text-transform: uppercase;
-        font-weight: 900;
-    }
-
-    /* BOTÕES */
-    .footer-actions {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-bottom: 80px;
-    }
-
-    .action-btn {
-        position: relative;
-        padding: 20px 40px;
-        font-family: 'JetBrains Mono', monospace;
-        text-decoration: none;
-        font-weight: bold;
-        text-transform: uppercase;
-        overflow: hidden;
-        transition: 0.3s;
-        border: 1px solid #333;
-    }
-
-    /* Botão Principal (Email) */
-    .primary {
-        background: transparent;
-        color: #00f0ff;
-        border-color: #00f0ff;
-    }
-
-    .primary:hover {
-        background: #00f0ff;
-        color: #000;
-        box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
-    }
-
-    /* Botão Secundário (CV) */
-    .secondary {
-        background: transparent;
-        color: white;
-    }
-
-    .secondary:hover {
-        background: white;
-        color: black;
-    }
-
-    /* LINKS SOCIAIS */
-    .social-links {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        margin-bottom: 40px;
-    }
-
-    .social-item {
-        color: #666;
-        text-decoration: none;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.9rem;
-        transition: 0.3s;
-    }
-
-    .social-item:hover {
-        color: white;
-        text-shadow: 0 0 10px white;
-    }
-
-    .copyright {
-        font-family: 'Inter', sans-serif;
-        color: #333;
-        font-size: 0.8rem;
-    }
-    /* --- CORREÇÃO DO FOOTER (Prioridade) --- */
-    .footer-section {
-        /* Removemos qualquer height fixa para não haver buracos */
-        height: auto; 
-        min-height: 50vh;
-        padding: 150px 0; /* Espaço generoso mas controlado */
-        background-color: #000000;
-    }
-
-    /* --- ESTILOS DO ABOUT ME NO FOOTER --- */
-        .about-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 50px; /* Espaço entre a foto e o texto */
-            margin: 40px auto 60px auto;
-            max-width: 900px;
-            text-align: left;
-        }
-
-        .about-image-wrapper {
-            flex-shrink: 0; /* Impede a imagem de encolher */
-            width: 200px;
-            height: 200px;
-            position: relative;
-        }
-
-        .about-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Mantém a imagem proporcional sem a distorcer */
-            border-radius: 50%;
-            border: 2px solid #333;
-            transition: 0.3s;
-        }
-
-        /* Efeito de brilho quando passas o rato na tua foto */
-        .about-image:hover {
-            border-color: #00f0ff;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
-        }
-
-        .about-text {
-            color: #cccccc;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .about-text p {
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        .about-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Palavras-chave destacadas a Ciano */
-        .highlight {
-            color: #00f0ff;
-            font-weight: 700;
-        }
-
-        /* --- RESPONSIVIDADE (Para Telemóveis) --- */
-        @media (max-width: 768px) {
-            .about-container {
-                flex-direction: column; /* Coloca a foto em cima do texto */
-                text-align: center;
-                gap: 30px;
-                padding: 0 20px;
-            }
-        }
-
-    /* --- 1. LOADING SCREEN (Barra Fina) --- */
-    .loading-screen {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #000; z-index: 9999;
-        display: flex; justify-content: center; align-items: center;
-        transition: opacity 0.5s ease; pointer-events: none;
-    }
-    .loading-bar {
-        width: 0%; height: 2px; background: #00f0ff;
-        box-shadow: 0 0 10px #00f0ff;
-        transition: width 0.5s ease;
-    }
-
-    /* --- 2. CURSOR MIRA (Crosshair) --- */
-    body { cursor: none; } /* Esconde a seta normal */
-    
-    .cursor-dot, .cursor-outline {
-        position: fixed; top: 0; left: 0;
-        transform: translate(-50%, -50%);
-        pointer-events: none; z-index: 99999;
-        border-radius: 50%; mix-blend-mode: difference;
-    }
-    .cursor-dot { width: 8px; height: 8px; background: #00f0ff; }
-    .cursor-outline { 
-        width: 40px; height: 40px; 
-        border: 1px solid rgba(0, 240, 255, 0.5);
-        transition: width 0.2s, height 0.2s; 
-    }
-    
-    /* Quando passas por cima de links, a mira cresce */
-    body.hovering .cursor-outline { width: 60px; height: 60px; border-color: #fff; }
-
-    /* --- 3. SCROLL HINT (Seta a saltar) --- */
-    .scroll-hint {
-        position: absolute; 
-        bottom: 30px; 
-        left: 22%; 
-        transform: translateX(-50%);
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 10px;
-        z-index: 5; 
-        opacity: 0.7;
-        font-family: 'JetBrains Mono', monospace; 
-        font-size: 0.7rem; 
-        color: #00f0ff;
-
-    }
-    .arrow-down { animation: bounce 2s infinite; font-size: 1.2rem; }
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-        40% {transform: translateY(-10px);}
-        60% {transform: translateY(-5px);}
-    }
-
-    /* --- 4. LOOT POPUP --- */
-    .loot-popup {
-        position: absolute; pointer-events: none;
-        background: #00f0ff; color: #000; padding: 5px 10px;
-        font-family: 'JetBrains Mono', monospace; font-weight: bold; font-size: 0.8rem;
-        border-radius: 4px; opacity: 0; z-index: 20;
-    }
-
-/* =========================================
-           MOBILE FINAL POLISH (Versão Centrada)
-           ========================================= */
-        @media screen and (max-width: 950px) {
-            
-            /* 1. GERAL - SEGURANÇA TOTAL */
-            html, body {
-                overflow-x: hidden !important; /* Corta tudo o que saia da largura */
-                width: 100%;
-                position: relative;
-            }
-            
-            /* Remove cursor */
-            .cursor-dot, .cursor-outline { display: none !important; }
-            * { cursor: auto !important; }
-
-            /* 2. HERO SECTION - CENTRAGEM PERFEITA */
-            .hero-wrapper {
-                height: 100vh;
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .hero-title {
-                position: relative !important;
-                top: auto !important; left: auto !important;
-                transform: none !important;
-                
-                /* Ajuste para não cortar */
-                font-size: 11vw !important; /* Um pouco menor para caber nomes longos */
-                width: 90%; /* Margem de segurança lateral */
-                text-align: center;
-                margin: 0 auto 20px auto; /* Centrado com margem em baixo */
-                line-height: 1.1;
-                z-index: 10;
-            }
-
-            /* O BONECO AGORA FICA CENTRADO À FORÇA */
-            .character-container {
-                position: absolute !important;
-                bottom: 0 !important;
-                
-                /* TÉCNICA DE CENTRAGEM ABSOLUTA */
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                right: auto !important;
-                top: auto !important;
-                
-                width: 100vw !important; /* Ocupa a largura toda */
-                max-width: 600px; /* Mas não deixa ficar gigante */
-                height: 55vh !important;
-                opacity: 0.5;
-                pointer-events: none;
-                z-index: 1;
-                display: flex;
-                justify-content: center; /* Garante que a img dentro tb centra */
-            }
-            
-            .character-img {
-                width: auto; 
-                height: 100%; 
-                object-fit: contain;
-            }
-
-            .role-badge {
-                position: relative !important;
-                bottom: auto !important;
-                left: auto !important;
-                transform: none !important;
-                margin-bottom: 20px; /* Espaço para as skills */
-                z-index: 20;
-            }
-
-            /* PROFILE CARD ESCONDIDA NO MOBILE */
-            .profile-card {
-                display: none !important;
-            }
-
-            /* SKILLS - MOSTRAR NO MOBILE */
-            .skills-container {
-                display: flex !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                flex-wrap: wrap !important;
-                justify-content: center !important;
-                gap: 8px !important;
-                width: 90% !important;
-                margin: 0 auto 30px auto !important;
-                position: relative !important;
-                transform: none !important;
-                z-index: 100 !important;
-            }
-
-            .skill-tag {
-                background: rgba(0, 0, 0, 0.8) !important;
-                border: 1px solid #00f0ff !important;
-                color: #00f0ff !important;
-                font-family: monospace !important;
-                font-size: 0.75rem !important;
-                font-weight: bold !important;
-                text-transform: uppercase !important;
-                padding: 6px 10px !important;
-                border-radius: 4px !important;
-                white-space: nowrap !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: none !important;
-            }
-
-            /* 3. PROJETOS - CORREÇÃO */
-            .projects-section {
-                padding-top: 100px !important; 
-                display: block !important;
-                background: #000 !important;
-                height: auto !important;
-                min-height: 100vh;
-            }
-
-            .section-header {
-                position: relative !important;
-                top: auto !important;
-                left: auto !important;
-                text-align: center !important;
-                margin-bottom: 50px !important;
-                padding: 0 20px !important;
-                font-size: 1.5rem !important;
-            }
-
-            .projects-section h1, 
-            .projects-section h2 {
-                margin-bottom: 70px !important;
-                position: relative !important;
-                transform: none !important;
-                text-align: center !important;
-                width: 100%;
-            }
-
-            .horizontal-wrapper {
-                display: flex !important;
-                flex-direction: column !important; /* Lista Vertical */
-                width: 100% !important;
-                gap: 30px !important;
-                padding: 0 !important;
-                align-items: center !important;
-            }
-
-            .horizontal-wrapper > a {
-                width: 100% !important;
-                max-width: 90vw !important;
-                margin: 0 !important;
-            }
-
-            .horizontal-wrapper > a:first-child,
-            .horizontal-wrapper > a:last-child {
-                margin: 0 !important;
-            }
-
-            .game-card {
-                width: 100% !important;
-                max-width: 90vw !important;
-                height: 400px !important;
-                margin: 0 auto !important;
-                transform: none !important; 
-                opacity: 1 !important;
-                filter: none !important;
-                flex-shrink: 0 !important;
-            }
-
-            /* Títulos dos jogos ajustados */
-            .game-title { font-size: 1.5rem !important; }
-            .game-number { font-size: 0.7rem !important; }
-            .game-tags { font-size: 0.8rem !important; }
-
-            /* 4. FOOTER */
-            .footer-section {
-                padding: 80px 0 !important;
-                margin-left: 0 !important;
-                margin-right: 0 !important;
-                width: 100% !important;
-            }
-
-            .footer-cta {
-                font-size: 5vw !important;
-            }
-
-            .about-container {
-                flex-direction: column !important;
-                gap: 20px !important;
-                padding: 0 15px !important;
-            }
-
-            .about-image-wrapper { 
-                width: 120px !important; 
-                height: 120px !important; 
-            }
-
-            .about-text { 
-                text-align: center !important;
-                font-size: 0.95rem !important;
-            }
-
-            .footer-actions {
-                flex-direction: column !important;
-                gap: 15px !important;
-            }
-
-            .action-btn {
-                width: 100% !important;
-                max-width: 300px !important;
-                margin: 0 auto !important;
-                padding: 15px 30px !important;
-            }
-
-            .social-links {
-                gap: 20px !important;
-                flex-wrap: wrap !important;
-            }
-
-            /* Remover scroll-hint no mobile */
-            .scroll-hint {
-                display: none !important;
-            }
-        }
-
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Marco Santos — Gameplay Programmer. Combat, progression, and interactive systems built in Roblox, Unity and Unreal Engine.">
+  <meta name="theme-color" content="#111110">
+  <title>Marco Santos — Gameplay Programmer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23111110'/%3E%3Ctext x='9' y='46' font-size='45' fill='%23eeeae2' font-family='Georgia'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/home.css">
+  <link rel="stylesheet" href="assets/css/refinement.css">
+  <link rel="stylesheet" href="assets/css/hero.css">
+  <link rel="stylesheet" href="assets/css/phase-two.css">
+  <script src="assets/vendor/gsap.min.js" defer></script>
+  <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="assets/js/scroll.js" defer></script>
+  <script src="assets/js/hero.js" defer></script>
+  <script src="assets/js/home.js" defer></script>
+  <script src="assets/js/media.js" defer></script>
+<link rel="stylesheet" href="assets/css/polish.css"><script src="assets/js/polish.js" defer></script>
 </head>
 <body>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <div class="loading-screen">
-        <div class="loading-bar"></div>
-    </div>
-
-    <div class="cursor-dot"></div>
-    <div class="cursor-outline"></div>
-
-    <div class="hero-wrapper">
-        <div class="spotlight"></div>
-        <div class="character-container">
-            <img src="Fotos/Foto2Silhueta.png" class="character-img" alt="Silhueta">
-        </div>
-        <h1 class="hero-title">MARCO<br>SANTOS</h1>
-        <div class="role-badge">GAMEPLAY PROGRAMMER</div>
-
-        <!-- Skills visíveis no mobile -->
-        <div class="skills-container">
-            <div class="skill-tag">UNITY</div>
-            <div class="skill-tag">UNREAL ENGINE</div>
-            <div class="skill-tag">ROBLOX</div>
-            <div class="skill-tag">C#</div>
-            <div class="skill-tag">BLUEPRINT</div>
-            <div class="skill-tag">LUAU</div>
-        </div>
-
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="profile-name">MARCO SANTOS</div>
-                <div class="profile-sub">GAMEPLAY PROGRAMMER</div>
-            </div>
-            <div class="skills-list">
-                <div class="skill-tag">UNITY</div>
-                <div class="skill-tag">UNREAL ENGINE</div>
-                <div class="skill-tag">ROBLOX</div>
-                <div class="skill-tag">C#</div>
-                <div class="skill-tag">BLUEPRINT</div>
-                <div class="skill-tag">LUAU</div>
-            </div>
-        </div>
-
-        <div class="scroll-hint">
-            <span>SCROLL TO START</span>
-            <div class="arrow-down">↓</div>
-        </div>
-    </div>
-
-    <section class="projects-section">
-        <div class="code-particles-container"></div>
-        <div class="section-header">MISSION LOG // 2024-2026</div>
-        
-        <div class="horizontal-wrapper">
-
-            <a href="nocturne.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(131, 65, 62, 1)"> <div class="game-image" style="background-image: url('NocturneBattlegrounds/logo.png');"></div>
-                <div class="game-info">
-                    <div class="game-number">MISSION 01</div>
-                    <h2 class="game-title">NOCTURNE BATTLEGROUNDS</h2>
-                    <div class="game-tags">MULTIPLAYER • ROBLOX • LUA</div>
-                </div>
-            </div>
-            </a>
-
-            <a href="cyber.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(7, 115, 205, 0.6)">
-                <div class="game-image" style="background-image: url('CyberEngineer/CyberEnginner.png');"></div>
-                <div class="game-info">
-                    <div class="game-number">MISSION 02</div>
-                    <h2 class="game-title">CYBER ENGINEER</h2>
-                    <div class="game-tags">MOBILE • UNITY • C#</div>
-                </div>
-            </div>
-            </a>
-
-            <a href="savestate.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(239, 193, 210, 0.75)">
-                <div class="game-image" style="background-image: url('SaveState/SaveState.png');"></div>
-                <div class="game-info">
-                    <div class="game-number">MISSION 03</div>
-                    <h2 class="game-title">SAVE STATE</h2>
-                    <div class="game-tags">COZY • UNREAL ENGINE • BLUEPRINT</div>
-                </div>
-            </div>
-            </a>
-
-            <a href="lusiada1.html" style="text-decoration: none;">
-            <div class="game-card" data-color="rgba(51, 38, 39, 1)">
-                <div class="game-image" style="background-image: url('Lusiada-1/Lusiada1.png'); background-position: center 10%;"></div>
-                <div class="game-info">
-                    <div class="game-number">MISSION 04</div>
-                    <h2 class="game-title">LUSIADA-1</h2>
-                    <div class="game-tags">NARRATIVE • UNITY • C#</div>
-                </div>
-            </div>
-            </a>
-
-        </div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="#main" aria-label="Marco Santos, home">MS<span>Marco Santos</span></a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="#work">Work</a><a href="#about">About</a><a href="MarcoSantos_CV.pdf" target="_blank" rel="noopener" aria-label="Open CV, PDF in a new tab">CV ↗</a><a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-scene">
+        <div class="hero-kicker"><p class="eyebrow">Gameplay programmer</p><p class="eyebrow availability">Portugal · Open to opportunities</p></div>
+        <h1 id="hero-title"><span>MARCO</span> <span>SANTOS</span></h1>
+        <figure class="hero-cinema" aria-label="Four project worlds, presented in monochrome">
+          <div class="hero-frame is-current"><img src="assets/media/nocturne-world.webp" width="1295" height="793" alt="Nocturne's gothic cathedral beneath a giant moon" fetchpriority="high" decoding="async"></div>
+          <div class="hero-frame hero-frame--cyber" aria-hidden="true"><img src="assets/media/cyber.webp" width="480" height="852" alt="Cyber Engineer's top-down combat arena" decoding="async"></div>
+          <div class="hero-frame" aria-hidden="true"><img src="assets/media/save-state.webp" width="1280" height="722" alt="Assembling the controller in Save State" decoding="async"></div>
+          <div class="hero-frame" aria-hidden="true"><img src="assets/media/lusiada-world.webp" width="1440" height="812" alt="Lusíada's spacecraft exploring a nebula" decoding="async"></div>
+          <figcaption class="cinema-caption"><span>Selected worlds / <span id="hero-frame-name">Nocturne Battlegrounds</span></span><div class="cinema-controls" hidden><div class="cinema-index" role="group" aria-label="Choose a project frame"><button type="button" aria-label="Show Nocturne frame" aria-pressed="true">01</button><button type="button" aria-label="Show Cyber Engineer frame" aria-pressed="false">02</button><button type="button" aria-label="Show Save State frame" aria-pressed="false">03</button><button type="button" aria-label="Show Lusíada-1 frame" aria-pressed="false">04</button></div><button type="button" class="cinema-pause" aria-label="Pause frame sequence">Pause sequence</button></div></figcaption>
+        </figure>
+        <p class="hero-statement">I build systems that feel good to play.</p>
+        <div class="hero-base"><a href="#work" class="text-link">Discover the work <span aria-hidden="true">↓</span></a><span class="eyebrow">Combat / Progression / Interaction</span></div>
+      </div>
     </section>
-
-    <div style="height: 50vh; background: #020202;"></div>
-
-    <footer class="footer-section">
-            <div class="footer-content">
-                <div class="footer-header">SYSTEM.PROFILE // ABOUT_ME</div>
-                
-                <div class="about-container">
-                    <div class="about-image-wrapper">
-                        <img src="Fotos/MarcoFoto.png" alt="Marco Santos" class="about-image">
-                    </div>
-                    
-                    <div class="about-text">
-                        <p>I'm Marco a  <strong class="highlight">Gameplay Programmer</strong> finishing my degree.</p>
-                        
-                        <p>I spend my time deconstructing games and building my own systems, from multiplayer gameplay mechanics to reactive combat AI .</p>
-                        
-                        <p>I work with C#, Lua, and Blueprints, always aiming for that satisfying game feel. Ready to learn and contribute.</p>
-                    </div>
-                </div>
-                
-                <div class="footer-actions">
-                    <a href="mailto:marcosantos@email.com" class="action-btn primary">
-                        <span class="btn-text">INITIALIZE_CHAT</span>
-                    </a>
-                    <div class="loot-popup">+1 EMAIL COPIED</div>
-                    <a href="MarcoSantos_CV.pdf" target="_blank" class="action-btn secondary">
-                        <span class="btn-text">DOWNLOAD_CV</span>
-                    </a>
-                </div>
-
-                <div class="social-links">
-                    <a href="https://github.com/koll11" target="_blank" class="social-item">GITHUB</a>
-                    <a href="https://www.linkedin.com/in/marco-santos-3a45b528a" target="_blank" class="social-item">LINKEDIN</a>
-                    <a href="https://www.instagram.com/koll_11" class="social-item">INSTAGRAM</a>
-                </div>
-                <div class="copyright">© 2026 MARCO SANTOS // SYSTEM ONLINE</div>
+    <div class="work-intro" id="work">
+      <div><p class="eyebrow">01 / Portfolio</p><h2 id="work-title">Selected work.</h2></div>
+      <div class="work-description"><p>Different worlds. Shared attention to the systems that bring them to life.</p></div>
+    </div>
+    <section class="work" aria-labelledby="work-title">
+      <div class="gallery-stage">
+        <div class="gallery-bar">
+          <nav class="gallery-index" aria-label="Selected projects"><a href="#nocturne">01 / Nocturne</a><a href="#cyber">02 / Cyber Engineer</a><a href="#save-state">03 / Save State</a><a href="#lusiada">04 / Lusíada-1</a></nav>
+          <div class="gallery-controls"><output aria-label="Current project">01 / 04</output><button type="button" data-direction="-1" aria-label="Previous project">←</button><button type="button" data-direction="1" aria-label="Next project">→</button></div>
+        </div>
+        <div class="gallery-track">
+          <article class="world nocturne" id="nocturne" aria-labelledby="nocturne-title">
+            <div class="world-top"><span class="world-number">01 <small>/ 04</small></span><p class="eyebrow">Roblox / Luau / Multiplayer combat</p></div>
+            <h3 id="nocturne-title">Nocturne<span>Battlegrounds</span></h3>
+            <figure class="media"><video aria-hidden="true" data-restore-poster="true" data-src="assets/media/nocturne.mp4" data-poster="assets/media/nocturne-world.webp" muted loop playsinline preload="none" aria-label="Nocturne vampire combat gameplay"></video><button class="preview-toggle" type="button" aria-label="Play Nocturne preview">Play gameplay preview ↗</button></figure>
+            <div class="world-footer"><p class="world-copy">Vampires. A gothic town. Responsive combat built for a multiplayer world.</p><a class="text-link" href="nocturne.html">View project <span aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="world cyber" id="cyber" aria-labelledby="cyber-title">
+            <div class="world-top"><span class="world-number">02 <small>/ 04</small></span><p class="eyebrow">Unity / C# / Action roguelike</p></div>
+            <div class="cyber-layout">
+              <div><h3 id="cyber-title">Cyber<br><span>Engineer</span></h3><p class="world-copy">Fight your own creations.<br>Grow stronger with every wave.</p><a class="text-link" href="cyber.html">View project <span aria-hidden="true">↗</span></a></div>
+              <div class="cyber-composition"><figure class="cyber-detail"><img src="assets/media/cyber-upgrades.webp" loading="lazy" width="420" height="746" alt="Three upgrade choices in Cyber Engineer" decoding="async"><figcaption>01 / Choose your upgrade</figcaption></figure><figure class="media"><video aria-hidden="true" data-src="assets/media/cyber.mp4" data-poster="assets/media/cyber.webp" muted loop playsinline preload="none" aria-label="Cyber Engineer top-down mobile gameplay"></video><button class="preview-toggle" type="button" aria-label="Play Cyber Engineer preview">Play preview ↗</button></figure><figure class="cyber-detail encounter"><img src="assets/media/cyber-encounter.webp" loading="lazy" width="420" height="746" alt="Enemies converging on the engineer" decoding="async"><figcaption>02 / Face the next wave</figcaption></figure></div>
+              <div class="system-notes"><div><span class="eyebrow">01 / Progression</span><p>Character, weapon and gadget upgrades.</p></div><div><span class="eyebrow">02 / Encounters</span><p>Twenty waves. Controlled enemy spawning.</p></div></div>
             </div>
-        </footer>
-
-    <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-    // LOADING: Simula carregamento
-    const loadingBar = document.querySelector('.loading-bar');
-    const loadingScreen = document.querySelector('.loading-screen');
-    
-    // Anima a barra assim que o script corre
-    gsap.to(loadingBar, { width: "100%", duration: 1.5, ease: "power2.inOut" });
-
-    window.addEventListener("load", () => {
-        
-        // 1. FECHAR LOADING SCREEN (Sem breaks)
-        gsap.to(loadingScreen, { opacity: 0, duration: 0.5, delay: 0.5, onComplete: () => loadingScreen.remove() });
-
-        // --- REFERÊNCIAS GERAIS ---
-        const cursorDot = document.querySelector('.cursor-dot');
-        const cursorOutline = document.querySelector('.cursor-outline');
-        
-        // 2. CURSOR MIRA
-        window.addEventListener("mousemove", (e) => {
-            const posX = e.clientX;
-            const posY = e.clientY;
-            
-            // Ponto segue instantâneo
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
-            
-            // Círculo segue com delay (efeito "smooth")
-            cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
-        });
-
-        // Detetar Links para aumentar a mira
-        const links = document.querySelectorAll('a, .game-card');
-        links.forEach(link => {
-            link.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            link.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-        });
-
-        // 3. ANIMAÇÃO HERO (Com Seta a desaparecer)
-
-        let mm = gsap.matchMedia();
-
-        const charContainer = document.querySelector('.character-container');
-        const charImg = document.querySelector('.character-img');
-        const light = document.querySelector('.spotlight');
-        const title = document.querySelector('.hero-title');
-        const badge = document.querySelector('.role-badge');
-        const profileCard = document.querySelector('.profile-card');
-        
-        gsap.set(title, { 
-            position: "absolute",
-            left: "50%", 
-            top: "45%", 
-            xPercent: -50,
-        });
-
-        // Força a luz a ir para o centro exato
-        gsap.set(light, { 
-            position: "absolute",
-            left: "50%", 
-            top: "50%", 
-            xPercent: -50, 
-            yPercent: -50 
-        });
-
-        gsap.set(badge, { 
-            bottom: "120px" 
-        });
-        // ---------------------
-
-        mm.add("(min-width: 800px)", () => {
-
-        let tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: ".hero-wrapper", start: "top top", end: "+=100%", 
-                scrub: 1, pin: true, anticipatePin: 1
-            }
-        });
-
-        // Remove a seta logo ao início
-        tl.to(".scroll-hint", { opacity: 0, duration: 0.2 }, 0);
-        
-        tl.set(charContainer, { zIndex: 10, immediateRender: false }, 0);
-        tl.to(charImg, { x: -window.innerWidth * 0.25, duration: 1 }, 0);
-        tl.to(light, { x: -window.innerWidth * 0.25, xPercent: -50, duration: 1 }, 0);
-        tl.to(title, { y: -300, opacity: 0, duration: 0.8 }, 0);
-        tl.to(badge, { opacity: 0, duration: 0.2 }, 0);
-        tl.to(profileCard, { opacity: 1, x: -50, duration: 0.8 }, 0.2);
-
-        // 4. SKILLS "POP-POP-POP" (Stagger)
-        // Faz as tags aparecerem uma a uma
-        tl.from(".skill-tag", {
-            y: 20, opacity: 0, scale: 0.5,
-            duration: 0.3, stagger: 0.1, ease: "back.out(1.7)"
-        }, 0.5);
-        });
-
-        // --- VERSÃO MOBILE (Telemóvel) ---
-        mm.add("(max-width: 799px)", () => {
-            let tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: ".hero-wrapper", start: "top top", end: "bottom top",
-                    scrub: 1
-                }
-            });
-
-            // Animações suaves apenas para o Boneco e Título
-            tl.to(".character-container", { opacity: 0, y: -50, duration: 1 }, 0);
-            tl.to(".hero-title", { opacity: 0, y: -50, duration: 0.5 }, 0);
-            
-            // --- O SEGREDO PARA AS SKILLS APARECEREM ---
-            // Isto remove qualquer "lixo" que o GSAP tenha posto nas skills
-            gsap.set(".skills-container, .skill-tag", { 
-                clearProps: "all",
-                opacity: 1,
-                visibility: "visible"
-            });
-        });
-
-        // 5. PROJETOS (Scroll Horizontal + Ambilight + Cores)
-
-        let mm2 = gsap.matchMedia();
-
-        mm2.add("(min-width: 800px)", () => {
-        
-        const projectSection = document.querySelector(".projects-section");
-        const wrapper = document.querySelector(".horizontal-wrapper");
-        const cards = gsap.utils.toArray(".game-card");
-
-        function getScrollAmount() {
-                // Seleciona o último cartão
-                let lastCard = cards[cards.length - 1];
-                
-                // CORREÇÃO: Pegamos no PAI do cartão (o link <a>) para saber a posição real na régua
-                let parentLink = lastCard.parentElement; 
-                
-                // Calculamos o centro baseados no Link, não no cartão interior
-                let lastLinkCenter = parentLink.offsetLeft + (parentLink.offsetWidth / 2);
-                let centerScreen = window.innerWidth / 2;
-                
-                return -(lastLinkCenter - centerScreen);
-        }
-
-        let projectTl = gsap.timeline({
-            scrollTrigger: {
-                trigger: ".projects-section", pin: true, scrub: 1, invalidateOnRefresh: true,
-                end: () => "+=" + wrapper.scrollWidth,
-                onLeave: () => gsap.to(projectSection, { backgroundColor: "#000000", duration: 0.5 }),
-                onLeaveBack: () => gsap.to(projectSection, { backgroundColor: "#000000", duration: 0.5 }),
-                onEnter: () => gsap.to(projectSection, { backgroundColor: "#000000", duration: 0.1 })
-            }
-        });
-
-        projectTl.to(wrapper, { x: getScrollAmount, ease: "none" });
-
-        cards.forEach((card) => {
-            const color = card.getAttribute("data-color");
-            ScrollTrigger.create({
-                trigger: card, containerAnimation: projectTl, start: "left 60%", end: "right 40%",
-                onEnter: () => gsap.to(projectSection, { backgroundColor: color, duration: 0.5, overwrite: "auto" }),
-                onEnterBack: () => gsap.to(projectSection, { backgroundColor: color, duration: 0.5, overwrite: "auto" }),
-            });
-        });
-
-        // 3D TILT
-        cards.forEach(card => {
-            card.addEventListener("mousemove", (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
-                gsap.to(card, { rotationY: x * 20, rotationX: -y * 20, transformPerspective: 1000, ease: "power1.out", duration: 0.5 });
-            });
-            card.addEventListener("mouseleave", () => {
-                gsap.to(card, { rotationY: 0, rotationX: 0, duration: 1, ease: "elastic.out(1, 0.5)" });
-            });
-        });
-    });
-
-        // 6. BOTÕES MAGNÉTICOS + LOOT POPUP
-        const btns = document.querySelectorAll('.action-btn');
-        
-        btns.forEach(btn => {
-            // Efeito Magnético
-            btn.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                
-                // Botão move-se 30% da distância do rato (atração)
-                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: "power2.out" });
-            });
-            
-            btn.addEventListener('mouseleave', () => {
-                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.5)" });
-            });
-
-            // Loot Popup (Só no botão de Email)
-            if(btn.href.includes('mailto')) {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault(); // Impede abrir o email logo para veres o efeito
-                    
-                    // Copia Email
-                    navigator.clipboard.writeText("marco7santos@gmail.com");
-                    
-                    // Animação do Loot
-                    const popup = document.querySelector('.loot-popup');
-                    // Posiciona onde clicaste
-                    gsap.set(popup, { x: 0, y: 0, opacity: 1 });
-                    // Flutua para cima e desaparece
-                    gsap.fromTo(popup, 
-                        { y: 0, opacity: 1 },
-                        { y: -50, opacity: 0, duration: 1.5, ease: "power2.out" }
-                    );
-                });
-            }
-        });
-
-        // 7. FOOTER REVEAL
-        gsap.from(".footer-content", {
-            y: 50, opacity: 0, duration: 1,
-            scrollTrigger: {
-                trigger: ".footer-cta", start: "top 85%", toggleActions: "play none none reverse"
-            }
-        });
-
-        ScrollTrigger.refresh();
-        });
-
-    </script>
+          </article>
+          <article class="world save-state" id="save-state" aria-labelledby="save-title">
+            <div class="world-top"><span class="world-number">03 <small>/ 04</small></span><p class="eyebrow">Unreal Engine / Blueprints / Puzzle</p></div>
+            <div class="save-layout">
+              <div><h3 id="save-title">Save<br> State</h3><p class="world-copy">Slow down. Piece it together.<br>A little care, a satisfying fit.</p><a class="text-link" href="savestate.html">View project <span aria-hidden="true">↗</span></a></div>
+              <div class="save-composition"><figure class="media"><video aria-hidden="true" data-src="assets/media/save-state.mp4" data-poster="assets/media/save-state.webp" muted loop playsinline preload="none" aria-label="Assembling a controller in Save State"></video><button class="preview-toggle" type="button" aria-label="Play Save State preview">Play preview ↗</button></figure><figure class="save-detail"><img src="assets/media/save-detail-1.webp" width="720" height="406" loading="lazy" alt="Controller parts arranged at their assembly points" decoding="async"><figcaption>02 / Find the fit</figcaption></figure><figure class="save-detail"><img src="assets/media/save-detail-2.webp" width="720" height="406" loading="lazy" alt="A completed controller being inspected" decoding="async"><figcaption>03 / Put it together</figcaption></figure><p class="save-caption">Small interactions. A satisfying whole.</p></div>
+            </div>
+          </article>
+          <article class="world lusiada" id="lusiada" aria-labelledby="lusiada-title">
+            <div class="world-top"><span class="world-number">04 <small>/ 04</small></span><p class="eyebrow">Unity / C# / Space exploration</p></div>
+            <figure class="media"><video aria-hidden="true" data-src="assets/media/lusiada.mp4" data-poster="assets/media/lusiada-world.webp" muted loop playsinline preload="none" aria-label="Lusíada spacecraft crossing a bright nebula"></video><button class="preview-toggle" type="button" aria-label="Play Lusíada-1 preview">Play preview ↗</button></figure>
+            <h3 id="lusiada-title">Lusíada-1</h3><p class="subtitle">Lost signal. New horizons.</p>
+            <div class="world-footer"><p class="world-copy">A voyage beyond the familiar.<br>Lighting and camera work in service of discovery.</p><a class="text-link" href="lusiada1.html">View project <span aria-hidden="true">↗</span></a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <div class="phase-two">
+      <section class="p2-about" id="about" aria-labelledby="about-title">
+        <div class="p2-section-heading"><p class="eyebrow">02 / About</p><p class="eyebrow">The person behind the systems</p></div>
+        <h2 id="about-title">Curious by nature.<br>Gameplay by craft.</h2>
+        <div class="p2-about-grid">
+          <figure class="p2-portrait"><img src="assets/media/marco.webp" width="640" height="602" loading="lazy" alt="Portrait of Marco Santos" decoding="async"><figcaption><span>Marco Santos</span><span>Portugal</span></figcaption></figure>
+          <div class="p2-bio"><p class="p2-lead">I'm Marco, a gameplay programmer who likes knowing what makes a game feel right.</p><p>I recently graduated in Videogames and Multimedia Design at Universidade Lusófona in Porto. Now I'm looking for a team where I can contribute, keep learning and build thoughtful play experiences.</p><p>I spend my time deconstructing games and building systems of my own. My work ranges from responsive multiplayer combat to progression systems and the small interactions that make something satisfying to play.</p><dl class="p2-profile-facts"><div><dt>Focus</dt><dd>Gameplay programming</dd></div><div><dt>Based in</dt><dd>Portugal</dd></div><div><dt>Languages</dt><dd>Portuguese · English (B2)</dd></div><div><dt>Next step</dt><dd>Open to opportunities</dd></div></dl><a href="#contact" class="text-link">Get in touch <span aria-hidden="true">↗</span></a></div>
+        </div>
+      </section>
+      <section class="p2-skills" id="skills" aria-labelledby="skills-title">
+        <div class="p2-section-heading"><p class="eyebrow">03 / Skills & tools</p><p class="eyebrow">Shown through the work</p></div>
+        <div class="p2-skills-heading"><h2 id="skills-title">From tools<br>to playable systems.</h2><p>Different engines. The same attention to how a system behaves in a player's hands.</p></div>
+        <div class="p2-skill-row"><span class="p2-number">01</span><div><h3>Roblox <span>/ Luau</span></h3><p>Multiplayer combat, hit detection and server validation.</p></div><a href="nocturne.html" class="p2-proof"><span>Nocturne Battlegrounds</span><span aria-hidden="true">↗</span></a></div>
+        <div class="p2-skill-row"><span class="p2-number">02</span><div><h3>Unity <span>/ C#</span></h3><p>Upgrade systems, enemy spawning, lighting and camera work.</p></div><div class="p2-proof-group"><a href="cyber.html" class="p2-proof"><span>Cyber Engineer</span><span aria-hidden="true">↗</span></a><a href="lusiada1.html" class="p2-proof"><span>Lusíada-1</span><span aria-hidden="true">↗</span></a></div></div>
+        <div class="p2-skill-row"><span class="p2-number">03</span><div><h3>Unreal Engine <span>/ Blueprints</span></h3><p>Object assembly, precise attachment and puzzle progression.</p></div><a href="savestate.html" class="p2-proof"><span>Save State</span><span aria-hidden="true">↗</span></a></div>
+        <div class="p2-tool-note"><span class="eyebrow">Also in my toolkit</span><span>Git / Version control</span><a href="https://github.com/koll11" target="_blank" rel="noopener" aria-label="View Marco's GitHub, opens in a new tab">View GitHub ↗</a></div>
+      </section>
+      <section class="p2-cv" id="cv" aria-labelledby="cv-title">
+        <div><p class="eyebrow">04 / Curriculum vitae</p><h2 id="cv-title">The details,<br>in one place.</h2><p>Education, projects and technical skills.<br>A closer look at my background.</p><div class="p2-cv-actions"><a href="MarcoSantos_CV.pdf" target="_blank" rel="noopener" class="text-link" aria-label="Open Marco Santos's CV, PDF in a new tab">Open CV <span aria-hidden="true">↗</span></a><a href="MarcoSantos_CV.pdf" download class="p2-download">Download PDF ↓</a></div></div>
+        <div class="p2-cv-summary"><p class="eyebrow">Marco Santos / Gameplay programmer</p><dl><div><dt>Education</dt><dd>Videogames and<br>Multimedia Design</dd><dd class="p2-cv-detail">Universidade Lusófona · Porto</dd></div><div><dt>Selected experience</dt><dd>Combat. Progression.<br>Interaction. Exploration.</dd></div></dl><span class="p2-cv-format">PDF document · English</span></div>
+      </section>
+      <section class="p2-contact" id="contact" aria-labelledby="contact-title">
+        <div class="p2-section-heading"><p class="eyebrow">05 / Contact</p><p class="eyebrow">Open to opportunities</p></div>
+        <h2 id="contact-title">Let's build<br>something playable.</h2>
+        <div class="p2-contact-bottom"><p>Looking for a gameplay programmer?<br>I'd like to hear what you're working on.</p><a class="p2-email" href="mailto:marco7santos@gmail.com"><span>marco7santos@gmail.com</span><span aria-hidden="true">↗</span></a></div>
+      </section>
+    </div>
+  </main>
+  <footer class="p2-footer">
+    <div class="p2-footer-top"><a class="p2-footer-name" href="#main">Marco Santos<span>Gameplay programmer / Portugal</span></a><nav aria-label="Social links"><a href="https://github.com/koll11" target="_blank" rel="noopener" aria-label="GitHub, opens in a new tab">GitHub ↗</a><a href="https://www.linkedin.com/in/marco-santos-3a45b528a" target="_blank" rel="noopener" aria-label="LinkedIn, opens in a new tab">LinkedIn ↗</a><a href="https://www.instagram.com/koll_11" target="_blank" rel="noopener" aria-label="Instagram, opens in a new tab">Instagram ↗</a></nav></div>
+    <div class="p2-footer-base"><p>© 2026 Marco Santos</p><a href="#main">Back to top ↑</a></div>
+  </footer>
+  <aside class="font-review" aria-label="Typography audition"><label for="font-choice">Typography study</label><select id="font-choice"><option value="instrument">Instrument Serif + Inter</option><option value="bodoni">Bodoni Moda + Inter</option><option value="tight">Inter Tight + Inter</option></select></aside>
+  <noscript><style>.preview-toggle { display:none } video { display:none } .media::before { content:''; display:block; width:100%; height:100%; background:center/cover no-repeat var(--fallback) } .nocturne {--fallback:url('assets/media/nocturne-world.webp')} .cyber {--fallback:url('assets/media/cyber.webp')} .save-state {--fallback:url('assets/media/save-state.webp')} .lusiada {--fallback:url('assets/media/lusiada-world.webp')}</style></noscript>
 </body>
 </html>
