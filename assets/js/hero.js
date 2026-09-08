@@ -7,7 +7,7 @@
   const pause = hero.querySelector('.cinema-pause');
   const names = ['Nocturne Battlegrounds', 'Cyber Engineer', 'Save State', 'LusÃ­ada-1'];
   const reduced = matchMedia('(prefers-reduced-motion:reduce)');
-  const desktop = matchMedia('(min-width:1100px) and (pointer:fine)');
+  const desktop = matchMedia('(min-width:1100px)');
   const motionEnabled = () => desktop.matches && !reduced.matches;
   let index = 0, stopped = !motionEnabled(), visible = true, timer, pending = false;
   controls.hidden = false;
