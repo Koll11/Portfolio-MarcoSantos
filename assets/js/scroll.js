@@ -12,6 +12,10 @@
   const links = [...document.querySelectorAll('.gallery-index a')];
   const buttons = [...document.querySelectorAll('[data-direction]')];
   const output = document.querySelector('.gallery-controls output');
+  const progressEditorial = document.querySelector('.gallery-progress-editorial');
+  const ambient = document.querySelector('.gallery-ambient');
+  const projectTitleNames = ['Nocturne Battlegrounds', 'Cyber Engineer', 'Save State', 'Lusíada-1'];
+  const projectKeys = ['nocturne', 'cyber', 'save-state', 'lusiada'];
   const header = () => document.querySelector('.site-header').offsetHeight;
 
   // Pin refresh temporarily reparents content. Preserve keyboard focus across that operation.
@@ -28,32 +32,38 @@
 
   const mm = gsap.matchMedia();
 
-  // Atmospheric color interpolation with early warm twilight transition into Save State pastel
+  // Atmospheric color interpolation with overlapping ambient twilight transitions between distinct world palettes
   function getAtmosphere(progress) {
-    // progress ranges from 0 to 1 across the gallery timeline
-    if (progress <= 0.34) {
+    if (progress <= 0.33) {
       // Nocturne (#150e13) -> Cyber Engineer (#111e2b)
-      const u = Math.min(1, Math.max(0, progress / 0.34));
-      return gsap.utils.interpolate('#150e13', '#111e2b', u);
-    } else if (progress <= 0.66) {
-      // Cyber Engineer (#111e2b) -> Save State (#edc7b7)
-      // Warmth begins appearing earlier through a dusky violet/terracotta bridge
-      const u = Math.min(1, Math.max(0, (progress - 0.34) / 0.32));
+      // Blood-red ambience slowly cools into slate-blue
+      const u = Math.min(1, Math.max(0, progress / 0.33));
       if (u < 0.35) {
-        return gsap.utils.interpolate('#111e2b', '#2e2330', u / 0.35);
-      } else if (u < 0.72) {
-        return gsap.utils.interpolate('#2e2330', '#8c6670', (u - 0.35) / 0.37);
+        return gsap.utils.interpolate('#150e13', '#16131c', u / 0.35);
       } else {
-        return gsap.utils.interpolate('#8c6670', '#edc7b7', (u - 0.72) / 0.28);
+        return gsap.utils.interpolate('#16131c', '#111e2b', (u - 0.35) / 0.65);
+      }
+    } else if (progress <= 0.67) {
+      // Cyber Engineer (#111e2b) -> Save State (#edc7b7)
+      // Cold blue -> desaturates into dusky indigo -> warm peach/pink ambient light bleeds in -> Save State dominant
+      const u = Math.min(1, Math.max(0, (progress - 0.33) / 0.34));
+      if (u < 0.25) {
+        return gsap.utils.interpolate('#111e2b', '#1b1b28', u / 0.25);
+      } else if (u < 0.55) {
+        return gsap.utils.interpolate('#1b1b28', '#643e4c', (u - 0.25) / 0.30);
+      } else {
+        return gsap.utils.interpolate('#643e4c', '#edc7b7', (u - 0.55) / 0.45);
       }
     } else {
       // Save State (#edc7b7) -> Lusíada-1 (#090f18)
-      // Soft transition from bright pastel through cosmic deep space
-      const u = Math.min(1, Math.max(0, (progress - 0.66) / 0.34));
-      if (u < 0.45) {
-        return gsap.utils.interpolate('#edc7b7', '#251d2a', u / 0.45);
+      // Pastel warmth -> edges darken -> deep blue space atmosphere emerges -> Lusíada dominant
+      const u = Math.min(1, Math.max(0, (progress - 0.67) / 0.33));
+      if (u < 0.25) {
+        return gsap.utils.interpolate('#edc7b7', '#735061', u / 0.25);
+      } else if (u < 0.60) {
+        return gsap.utils.interpolate('#735061', '#181b2c', (u - 0.25) / 0.35);
       } else {
-        return gsap.utils.interpolate('#251d2a', '#090f18', (u - 0.45) / 0.55);
+        return gsap.utils.interpolate('#181b2c', '#090f18', (u - 0.60) / 0.40);
       }
     }
   }
@@ -76,10 +86,17 @@
         onLeaveBack: () => {
           takeover.progress(0);
           hero.style.setProperty('--hero-progress', '0');
+          document.documentElement.style.setProperty('--grain-opacity', '0.032');
+          document.documentElement.removeAttribute('data-active-project');
+          if (ambient) {
+            ambient.style.removeProperty('--ambient-opacity');
+            ambient.style.removeProperty('--ambient-opacity2');
+          }
         },
         onUpdate: (self) => {
           if (self.progress === 0) {
             hero.style.setProperty('--hero-progress', '0');
+            document.documentElement.style.setProperty('--grain-opacity', '0.032');
           }
         }
       }
@@ -126,6 +143,55 @@
           // Atmospheric color transition
           stage.style.backgroundColor = getAtmosphere(p);
 
+          // Overlapping ambient washes: next world subtly influences atmosphere before its panel arrives
+          if (ambient) {
+            if (p < 0.33) {
+              // Approaching Cyber from Nocturne
+              const bleed = Math.max(0, Math.min(1, (p - 0.12) / 0.21));
+              ambient.style.setProperty('--ambient-glow', 'rgba(34, 73, 104, 0.42)');
+              ambient.style.setProperty('--ambient-opacity', (bleed * 0.75).toFixed(3));
+              ambient.style.setProperty('--ambient-x', `${(92 - bleed * 22).toFixed(1)}%`);
+              ambient.style.setProperty('--ambient-opacity2', '0');
+            } else if (p < 0.67) {
+              // Approaching Save State from Cyber
+              // Warm peach/pink ambient light bleeds into Cyber composition early
+              const bleed = Math.max(0, Math.min(1, (p - 0.40) / 0.24));
+              ambient.style.setProperty('--ambient-glow', 'rgba(237, 199, 183, 0.55)');
+              ambient.style.setProperty('--ambient-opacity', (bleed * 0.85).toFixed(3));
+              ambient.style.setProperty('--ambient-x', `${(94 - bleed * 32).toFixed(1)}%`);
+              // Fade out Cyber blue glow on the left
+              const fadeBlue = Math.max(0, 1 - (p - 0.33) / 0.20);
+              ambient.style.setProperty('--ambient-glow2', 'rgba(34, 73, 104, 0.3)');
+              ambient.style.setProperty('--ambient-opacity2', (fadeBlue * 0.5).toFixed(3));
+              ambient.style.setProperty('--ambient-x2', '12%');
+            } else {
+              // Approaching Lusíada-1 from Save State
+              // Deep cosmic blue/space atmosphere emerges on the right edge
+              const bleed = Math.max(0, Math.min(1, (p - 0.70) / 0.24));
+              ambient.style.setProperty('--ambient-glow', 'rgba(16, 28, 48, 0.75)');
+              ambient.style.setProperty('--ambient-opacity', (bleed * 0.9).toFixed(3));
+              ambient.style.setProperty('--ambient-x', `${(95 - bleed * 35).toFixed(1)}%`);
+              // Fade out Save State warmth on the left
+              const fadePeach = Math.max(0, 1 - (p - 0.67) / 0.22);
+              ambient.style.setProperty('--ambient-glow2', 'rgba(237, 199, 183, 0.4)');
+              ambient.style.setProperty('--ambient-opacity2', (fadePeach * 0.6).toFixed(3));
+              ambient.style.setProperty('--ambient-x2', '15%');
+            }
+          }
+
+          // Update editorial progress indicator & active project label
+          if (progressEditorial) {
+            progressEditorial.style.setProperty('--journey-progress', p.toFixed(4));
+            const nameEl = progressEditorial.querySelector('.editorial-project-name');
+            if (nameEl && projectTitleNames[current]) {
+              nameEl.textContent = projectTitleNames[current];
+            }
+          }
+
+          // Subtle grain adaptation (quieter on Save State)
+          document.documentElement.setAttribute('data-active-project', projectKeys[current]);
+          document.documentElement.style.setProperty('--grain-opacity', current === 2 ? '0.008' : '0.032');
+
           // Update navigation states
           links.forEach((a, i) => i === current ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current'));
           output.value = `${String(current + 1).padStart(2, '0')} / 04`;
@@ -152,38 +218,266 @@
       .to(track, { x: () => -distance(), duration: 0.8, ease: 'power1.inOut' }, 2.2)
       .to(track, { x: () => -distance(), duration: 0.2, ease: 'none' }, 3.0);
 
-    // Subtle project heading entrance reveals
-    worlds.forEach(world => {
-      gsap.from(world.querySelector('h3'), {
-        y: 36,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: world,
-          containerAnimation: journey,
-          start: 'left 80%',
-          toggleActions: 'play none none reverse'
+    // 4 & 5. CHOREOGRAPHED TYPOGRAPHIC RHYTHM & ATMOSPHERIC MEDIA REVEALS
+    worlds.forEach((world, idx) => {
+      // 5. Typography reveal rhythm: Title -> Metadata -> Supporting copy
+      const h3 = world.querySelector('h3');
+      const top = world.querySelector('.world-top');
+      const copy = world.querySelectorAll('.world-copy, .text-link, .world-footer, .subtitle, .system-notes, .save-caption');
+
+      if (h3) {
+        gsap.from(h3, {
+          y: 34,
+          opacity: 0,
+          duration: 0.58,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: world,
+            containerAnimation: journey,
+            start: 'left 82%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+      }
+
+      if (top) {
+        gsap.from(top, {
+          y: 16,
+          opacity: 0,
+          duration: 0.48,
+          delay: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: world,
+            containerAnimation: journey,
+            start: 'left 82%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+      }
+
+      if (copy.length) {
+        gsap.from(copy, {
+          y: 18,
+          opacity: 0,
+          duration: 0.52,
+          delay: 0.16,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: world,
+            containerAnimation: journey,
+            start: 'left 82%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+      }
+
+      // 4. Media reveals tailored to each world's atmosphere
+      if (idx === 0) {
+        // Nocturne: Emerges softly from darkness
+        const nocturneMedia = world.querySelector('.media');
+        if (nocturneMedia) {
+          gsap.from(nocturneMedia, {
+            scale: 0.96,
+            opacity: 0.4,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 90%',
+              toggleActions: 'play none none reverse'
+            }
+          });
         }
-      });
-      gsap.from(world.querySelector('.world-top'), {
-        y: 16,
-        opacity: 0,
-        duration: 0.5,
-        delay: 0.08,
-        scrollTrigger: {
-          trigger: world,
-          containerAnimation: journey,
-          start: 'left 80%',
-          toggleActions: 'play none none reverse'
+      } else if (idx === 1) {
+        // Cyber Engineer: Clean, precise geometric reveal with rhythmic stagger
+        const details = world.querySelectorAll('.cyber-detail');
+        const cyberMedia = world.querySelector('.media');
+        if (details.length >= 2 && cyberMedia) {
+          gsap.from(details[0], {
+            y: 28,
+            opacity: 0,
+            duration: 0.55,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 80%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+          gsap.from(cyberMedia, {
+            y: 35,
+            scale: 0.96,
+            opacity: 0,
+            duration: 0.6,
+            delay: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 80%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+          gsap.from(details[1], {
+            y: 28,
+            opacity: 0,
+            duration: 0.55,
+            delay: 0.16,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 80%',
+              toggleActions: 'play none none reverse'
+            }
+          });
         }
-      });
+      } else if (idx === 2) {
+        // Save State: Gentle soft lift and warm settling
+        const saveMedia = world.querySelector('.media');
+        const saveDetails = world.querySelectorAll('.save-detail');
+        if (saveMedia) {
+          gsap.from(saveMedia, {
+            y: 26,
+            rotation: -5.5,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 80%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+        }
+        if (saveDetails.length) {
+          gsap.from(saveDetails, {
+            y: 20,
+            opacity: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            delay: 0.1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 80%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+        }
+      } else if (idx === 3) {
+        // Lusíada-1: Spatial calm—deep serene drift
+        const lusiadaMedia = world.querySelector('.media');
+        if (lusiadaMedia) {
+          gsap.from(lusiadaMedia, {
+            x: 40,
+            scale: 1.04,
+            opacity: 0,
+            duration: 0.85,
+            ease: 'power1.out',
+            scrollTrigger: {
+              trigger: world,
+              containerAnimation: journey,
+              start: 'left 82%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+        }
+      }
     });
+
+    // 6. RESTRAINED MICRO-DEPTH (Differential parallax across active world components)
+    // Nocturne: Background cathedral media drifts slightly relative to foreground typography
+    const nocturneMediaEl = document.querySelector('#nocturne .media');
+    if (nocturneMediaEl) {
+      gsap.to(nocturneMediaEl, {
+        x: -12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#nocturne',
+          containerAnimation: journey,
+          scrub: true,
+          start: 'left right',
+          end: 'right left'
+        }
+      });
+    }
+
+    // Cyber: 3 gameplay frames move at slightly differential rates (subtle 3D depth)
+    const cyberLeft = document.querySelector('#cyber .cyber-detail:first-child');
+    const cyberRight = document.querySelector('#cyber .cyber-detail.encounter');
+    if (cyberLeft && cyberRight) {
+      gsap.to(cyberLeft, {
+        x: -12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#cyber',
+          containerAnimation: journey,
+          scrub: true,
+          start: 'left right',
+          end: 'right left'
+        }
+      });
+      gsap.to(cyberRight, {
+        x: 12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#cyber',
+          containerAnimation: journey,
+          scrub: true,
+          start: 'left right',
+          end: 'right left'
+        }
+      });
+    }
+
+    // Save State: Secondary inspection frames drift slightly relative to main workbench
+    const saveDetailsList = document.querySelectorAll('#save-state .save-detail');
+    if (saveDetailsList.length) {
+      gsap.to(saveDetailsList, {
+        x: 8,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#save-state',
+          containerAnimation: journey,
+          scrub: true,
+          start: 'left right',
+          end: 'right left'
+        }
+      });
+    }
+
+    // Lusíada: Spacecraft & nebula drift slightly slower than typography to convey vastness
+    const lusiadaMediaEl = document.querySelector('#lusiada .media');
+    if (lusiadaMediaEl) {
+      gsap.to(lusiadaMediaEl, {
+        x: -14,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#lusiada',
+          containerAnimation: journey,
+          scrub: true,
+          start: 'left right',
+          end: 'right left'
+        }
+      });
+    }
 
     return () => {
       hero.classList.remove('is-scroll-hero');
       work.classList.remove('is-horizontal');
       stage.style.backgroundColor = '';
+      if (ambient) {
+        ambient.style.removeProperty('--ambient-opacity');
+        ambient.style.removeProperty('--ambient-opacity2');
+      }
+      document.documentElement.removeAttribute('data-active-project');
+      document.documentElement.style.removeProperty('--grain-opacity');
       links.forEach(a => a.removeAttribute('aria-current'));
     };
   });

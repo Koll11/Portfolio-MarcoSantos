@@ -1,27 +1,306 @@
 /* Progressive navigation polish; no click interception, delays or loading overlay. */
-@view-transition{navigation:auto}
-::view-transition-old(root){animation:portfolio-out 140ms ease both}
-::view-transition-new(root){animation:portfolio-in 180ms ease both}
-@keyframes portfolio-out{to{opacity:0}}
-@keyframes portfolio-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) {
+  animation: portfolio-out 160ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(root) {
+  animation: portfolio-in 220ms cubic-bezier(0, 0, 0.2, 1) both;
+}
+@keyframes portfolio-out { to { opacity: 0; } }
+@keyframes portfolio-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* 1. SHARED-ELEMENT / CONTINUITY VIEW TRANSITIONS */
+#nocturne .media,
+.nocturne-case .case-hero-image {
+  view-transition-name: project-media-nocturne;
+}
+#nocturne h3,
+.nocturne-case .case-hero h1 {
+  view-transition-name: project-title-nocturne;
+}
+
+#cyber .cyber-composition,
+.cyber-case .ce-hero-sequence {
+  view-transition-name: project-media-cyber;
+}
+#cyber h3,
+.cyber-case .ce-hero h1 {
+  view-transition-name: project-title-cyber;
+}
+
+#save-state .save-composition .media,
+.save-case .ss-hero-frame {
+  view-transition-name: project-media-savestate;
+}
+#save-state h3,
+.save-case .ss-hero-title h1 {
+  view-transition-name: project-title-savestate;
+}
+
+#lusiada .media,
+.lusiada-case .lu-hero-world {
+  view-transition-name: project-media-lusiada;
+}
+#lusiada h3,
+.lusiada-case .lu-title h1 {
+  view-transition-name: project-title-lusiada;
+}
+
+::view-transition-group(project-media-nocturne),
+::view-transition-group(project-media-cyber),
+::view-transition-group(project-media-savestate),
+::view-transition-group(project-media-lusiada) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: clip;
+}
+
+::view-transition-group(project-title-nocturne),
+::view-transition-group(project-title-cyber),
+::view-transition-group(project-title-savestate),
+::view-transition-group(project-title-lusiada) {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(project-media-nocturne),
+::view-transition-new(project-media-nocturne),
+::view-transition-old(project-media-cyber),
+::view-transition-new(project-media-cyber),
+::view-transition-old(project-media-savestate),
+::view-transition-new(project-media-savestate),
+::view-transition-old(project-media-lusiada),
+::view-transition-new(project-media-lusiada) {
+  object-fit: cover;
+  height: 100%;
+}
+
+/* 2. EDITORIAL PROGRESS INDICATOR */
+.gallery-progress-editorial {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--sans);
+  color: var(--muted);
+  user-select: none;
+}
+.editorial-bound {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: #727068;
+}
+.editorial-track {
+  position: relative;
+  width: 76px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.editorial-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: calc(var(--journey-progress, 0) * 100%);
+  background: var(--paper);
+}
+.editorial-pip {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--journey-progress, 0) * 100%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--paper);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(238, 234, 226, 0.7);
+}
+.editorial-project-name {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper);
+  font-weight: 500;
+  min-width: 140px;
+  white-space: nowrap;
+}
+@media (max-width: 1200px) {
+  .editorial-project-name { display: none; }
+}
+@media (max-width: 999px) {
+  .gallery-progress-editorial { display: none; }
+}
+
+/* 3. ATMOSPHERIC TRANSITIONS & OVERLAPPING WORLD AMBIENCE */
+.gallery-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.gallery-ambient::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(circle 850px at var(--ambient-x, 85%) 50%, var(--ambient-glow, transparent), transparent 70%);
+  opacity: var(--ambient-opacity, 0);
+  transition: opacity 0.2s linear;
+}
+.gallery-ambient::after {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(circle 950px at var(--ambient-x2, 15%) 50%, var(--ambient-glow2, transparent), transparent 70%);
+  opacity: var(--ambient-opacity2, 0);
+  transition: opacity 0.2s linear;
+}
+.is-horizontal .world.nocturne,
+.is-horizontal .world.cyber,
+.is-horizontal .world.lusiada {
+  background: transparent;
+}
+.is-horizontal .save-state {
+  background: radial-gradient(ellipse 90% 85% at 50% 50%, rgba(237,199,183,.96) 0%, rgba(237,199,183,.78) 55%, rgba(237,199,183,.2) 88%, transparent 100%);
+}
+
+/* Interactive project media on homepage */
+[data-project-href] {
+  cursor: pointer;
+}
+[data-project-href]:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 4px;
+}
+
+/* Explicit geometry stabilization for cold-load View Transitions */
+.nocturne-case .case-hero-image {
+  aspect-ratio: 1295 / 793;
+}
+.cyber-case .ce-hero-sequence img {
+  aspect-ratio: 240 / 426;
+}
+.save-case .ss-hero-frame img {
+  aspect-ratio: 426 / 240;
+}
+.lusiada-case .lu-hero-world img {
+  aspect-ratio: 426 / 240;
+}
+
+/* 6. SUBTLE FILM GRAIN */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 90;
+  opacity: var(--grain-opacity, 0.032);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' width='256' height='256'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+  transition: opacity 0.35s ease;
+}
+.save-case .film-grain,
+:root[data-active-project='save-state'] .film-grain {
+  opacity: 0.008;
+}
+
+/* 7. CONTEXTUAL CURSOR */
+@media (hover: hover) and (pointer: fine) {
+  .context-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(238, 234, 226, 0.94);
+    color: #141413;
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+    white-space: nowrap;
+    will-change: transform, left, top;
+  }
+  .context-cursor.is-active {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+@media (pointer: coarse), (hover: none) {
+  .context-cursor {
+    display: none !important;
+  }
+}
+
+/* Hover refinements and interactive targets */
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
- .case-play,.preview-toggle{transition:background .18s,color .18s,box-shadow .18s}
- .case-play:hover{background:#fff;color:#171717;box-shadow:0 3px 18px #0003}
- .preview-toggle:hover{background:#eeeae2;color:#171717}
- .text-link{transition:opacity .18s}
- .text-link:hover{opacity:.78}
- .lu-next img,.ss-next img{transition:transform .4s ease}
- .lu-next:hover img,.ss-next:hover img{transform:scale(1.015)}
+  .case-play,.preview-toggle{transition:background .18s,color .18s,box-shadow .18s}
+  .case-play:hover{background:#fff;color:#171717;box-shadow:0 3px 18px #0003}
+  .preview-toggle:hover{background:#eeeae2;color:#171717}
+  .text-link{transition:opacity .18s}
+  .text-link:hover{opacity:.78}
+  .lu-next img,.ss-next img{transition:transform .4s ease}
+  .lu-next:hover img,.ss-next:hover img{transform:scale(1.015)}
 }
 a:focus-visible,button:focus-visible,video:focus-visible{outline:2px solid currentColor;outline-offset:5px}
 .case-play,.preview-toggle,.cinema-controls button{min-height:44px}
 .site-nav a[aria-current]{color:var(--paper)}
 .site-nav a[aria-current]::after{transform:scaleX(1)}
 @media(pointer:coarse){header nav a{min-height:44px;display:inline-flex;align-items:center}.gallery-controls button{min-width:44px;min-height:44px}}
-@media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none!important}.hero-scene{position:relative}}
+
+@media(prefers-reduced-motion:reduce){
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+  .hero-scene{position:relative}
+}
+
 /* Contrast corrections found in the final text audit. */
 .skip-link{background:#eeeae2;color:#151515}
 .nocturne-case .case-flow-number{color:#785a5d}
 .save-case{--muted:#60584f}
 .save-case .ss-attachment>span:nth-child(even){color:#805151}
 .save-state .save-caption{color:#6b4b43}
+
+/* Restrained case study motion enhancements */
+.case-hero-image,
+.ce-hero-sequence,
+.ss-hero-frame,
+.lu-hero-world,
+.case-film,
+.ce-film,
+.ss-film,
+.lu-film,
+.case-town,
+.ce-upgrade-media {
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .case-hero-image,
+  .ce-hero-sequence,
+  .ss-hero-frame,
+  .lu-hero-world,
+  .case-film,
+  .ce-film,
+  .ss-film,
+  .lu-film,
+  .case-town,
+  .ce-upgrade-media {
+    will-change: auto !important;
+  }
+}
