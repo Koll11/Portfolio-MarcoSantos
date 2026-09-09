@@ -18,17 +18,36 @@
   const projectKeys = ['nocturne', 'cyber', 'save-state', 'lusiada'];
   const header = () => document.querySelector('.site-header').offsetHeight;
 
-  // Pin refresh temporarily reparents content. Preserve keyboard focus across that operation.
+  // Pin refresh temporarily reparents content. Preserve keyboard focus and normalized progress across that operation.
   let focusedBeforeRefresh;
-  ScrollTrigger.addEventListener('refreshInit', () => { focusedBeforeRefresh = document.activeElement; });
+  let preservedProgress = null;
+  ScrollTrigger.addEventListener('refreshInit', () => {
+    window._isPinRefreshing = true;
+    focusedBeforeRefresh = document.activeElement;
+    const st = ScrollTrigger.getById('selected-work');
+    if (st && st.progress > 0.001 && st.isActive) {
+      preservedProgress = st.progress;
+    } else {
+      preservedProgress = null;
+    }
+  });
   ScrollTrigger.addEventListener('refresh', () => {
+    const st = ScrollTrigger.getById('selected-work');
+    if (st && preservedProgress !== null && preservedProgress > 0.001) {
+      st.scroll(st.start + (st.end - st.start) * preservedProgress);
+      st.progress = preservedProgress;
+      preservedProgress = null;
+    }
     if (focusedBeforeRefresh?.isConnected && focusedBeforeRefresh !== document.body && document.activeElement === document.body) {
       focusedBeforeRefresh.focus({ preventScroll: true });
     }
+    requestAnimationFrame(() => {
+      window._isPinRefreshing = false;
+    });
   });
 
   // Save initial styles before ScrollTrigger modifies anything
-  ScrollTrigger.saveStyles('.hero, .hero-scene, .hero-cinema, .hero h1, .hero-kicker, .hero-statement, .hero-base, .hero-cinema img');
+  ScrollTrigger.saveStyles('.hero, .hero-scene, .hero-cinema, .hero h1, .hero-kicker, .hero-statement, .hero-base, .hero-cinema img, .hero-cinema video');
 
   const mm = gsap.matchMedia();
 
@@ -113,8 +132,8 @@
         { opacity: 0, duration: 0.28, ease: 'power1.in' }, 0)
       // Media opens up smoothly to full bleed (0.0 to 0.82) driven by --hero-progress
       .fromTo(hero, { '--hero-progress': 0 }, { '--hero-progress': 1, duration: 0.82, ease: 'power1.inOut' }, 0)
-      // Restrained image scale
-      .fromTo('.hero-cinema img', { scale: 1 }, { scale: 1.07, duration: 0.82, ease: 'power1.out' }, 0)
+      // Restrained image/video scale
+      .fromTo('.hero-cinema img, .hero-cinema video', { scale: 1 }, { scale: 1.07, duration: 0.82, ease: 'power1.out' }, 0)
       // Dedicated hold at full-bleed before releasing into Selected Work (0.82 to 1.0)
       .to({}, { duration: 0.18 });
 
@@ -130,7 +149,7 @@
         end: () => `+=${Math.round(distance() * 1.25)}`,
         pin: stage,
         scrub: 0.45,
-        invalidateOnRefresh: true,
+        invalidateOnRefresh: false,
         anticipatePin: 1,
         onUpdate(self) {
           const p = self.progress;
@@ -527,8 +546,4 @@
   window.addEventListener('pageshow', refresh);
   document.fonts.ready.then(refresh);
   document.fonts.addEventListener('loadingdone', refresh);
-  document.querySelectorAll('img,video').forEach(media => {
-    media.addEventListener('load', refresh);
-    media.addEventListener('loadedmetadata', refresh);
-  });
 })();

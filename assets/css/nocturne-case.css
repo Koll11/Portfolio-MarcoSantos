@@ -73,10 +73,12 @@
 .case-showcase-heading { padding-bottom:40px; }
 .case-showcase-heading .eyebrow { color:#ce7f89; margin-bottom:25px; }
 .case-showcase-heading > p:last-child { font-size:13px; color:var(--muted); line-height:1.8; margin-top:24px; max-width:390px; }
-.case-town img { width:100%; height:auto; aspect-ratio:1.95; object-fit:cover; object-position:center 45%; }
+.case-town video,
+.case-town img { width:100%; height:auto; aspect-ratio:1.95; object-fit:cover; object-position:center 45%; display:block; }
 .case-moments { display:grid; grid-template-columns:1.2fr 1fr; gap:5vw; align-items:start; margin-top:60px; }
 .case-moments figure:last-child { margin-top:90px; }
-.case-moments img { width:100%; height:auto; }
+.case-moments video,
+.case-moments img { width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; display:block; }
 .case-moments figcaption { font-size:9px; color:var(--muted); margin-top:14px; text-transform:uppercase; letter-spacing:.1em; }
 .case-outcome { border-top:1px solid var(--line); }
 .case-outcome h2 { font-size:clamp(40px,4.4vw,74px); }

@@ -18,6 +18,14 @@
     }
   });
 
+  // Track incoming View Transition lifecycle
+  let transitionFinishedPromise = Promise.resolve();
+  window.addEventListener('pagereveal', e => {
+    if (e.viewTransition) {
+      transitionFinishedPromise = e.viewTransition.finished.catch(() => {});
+    }
+  });
+
   // Verify GSAP and ScrollTrigger presence
   function initMotion() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
@@ -61,8 +69,11 @@
       stagger: 0.16
     };
 
-    // Small delay to allow any incoming View Transition snapshot to complete smoothly
-    setTimeout(() => {
+    // Wait for incoming View Transition to finish before orchestrating entry reveals
+    Promise.race([
+      transitionFinishedPromise,
+      new Promise(r => setTimeout(r, 280))
+    ]).then(() => {
       initHero(config, { isNocturne, isCyber, isSaveState, isLusiada });
       initHeadings(config);
       initFeatureSections(config, { isNocturne, isCyber, isSaveState, isLusiada });
@@ -72,7 +83,7 @@
 
       // Recompute trigger bounds once fonts & media settle
       window.addEventListener('load', () => ScrollTrigger.refresh());
-    }, 60);
+    });
   }
 
   // ==========================================
@@ -596,4 +607,17 @@
   } else {
     initMotion();
   }
+
+  // Handle bfcache restoration
+  window.addEventListener('pageshow', e => {
+    if (e.persisted) {
+      if (window.ScrollTrigger) {
+        ScrollTrigger.getAll().forEach(t => t.kill(true));
+      }
+      if (window.gsap) {
+        gsap.globalTimeline.clear();
+      }
+      initMotion();
+    }
+  });
 })();

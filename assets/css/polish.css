@@ -10,70 +10,85 @@
 @keyframes portfolio-out { to { opacity: 0; } }
 @keyframes portfolio-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* 1. SHARED-ELEMENT / CONTINUITY VIEW TRANSITIONS */
-#nocturne .media,
+/* 1. SHARED-ELEMENT / CONTINUITY VIEW TRANSITIONS (SCOPED) */
+#nocturne[data-transition-active] .media,
 .nocturne-case .case-hero-image {
-  view-transition-name: project-media-nocturne;
+  view-transition-name: project-media;
 }
-#nocturne h3,
+#nocturne[data-transition-active] h3,
 .nocturne-case .case-hero h1 {
-  view-transition-name: project-title-nocturne;
+  view-transition-name: project-title;
 }
 
-#cyber .cyber-composition,
+#cyber[data-transition-active] .cyber-composition,
 .cyber-case .ce-hero-sequence {
-  view-transition-name: project-media-cyber;
+  view-transition-name: project-media;
 }
-#cyber h3,
+#cyber[data-transition-active] h3,
 .cyber-case .ce-hero h1 {
-  view-transition-name: project-title-cyber;
+  view-transition-name: project-title;
 }
 
-#save-state .save-composition .media,
+#save-state[data-transition-active] .save-composition .media,
 .save-case .ss-hero-frame {
-  view-transition-name: project-media-savestate;
+  view-transition-name: project-media;
 }
-#save-state h3,
+#save-state[data-transition-active] h3,
 .save-case .ss-hero-title h1 {
-  view-transition-name: project-title-savestate;
+  view-transition-name: project-title;
 }
 
-#lusiada .media,
+#lusiada[data-transition-active] .media,
 .lusiada-case .lu-hero-world {
-  view-transition-name: project-media-lusiada;
+  view-transition-name: project-media;
 }
-#lusiada h3,
+#lusiada[data-transition-active] h3,
 .lusiada-case .lu-title h1 {
-  view-transition-name: project-title-lusiada;
+  view-transition-name: project-title;
 }
 
-::view-transition-group(project-media-nocturne),
-::view-transition-group(project-media-cyber),
-::view-transition-group(project-media-savestate),
-::view-transition-group(project-media-lusiada) {
+::view-transition-group(project-media) {
   animation-duration: 260ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   overflow: clip;
 }
 
-::view-transition-group(project-title-nocturne),
-::view-transition-group(project-title-cyber),
-::view-transition-group(project-title-savestate),
-::view-transition-group(project-title-lusiada) {
+::view-transition-group(project-title) {
   animation-duration: 200ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-::view-transition-old(project-media-nocturne),
-::view-transition-new(project-media-nocturne),
-::view-transition-old(project-media-cyber),
-::view-transition-new(project-media-cyber),
-::view-transition-old(project-media-savestate),
-::view-transition-new(project-media-savestate),
-::view-transition-old(project-media-lusiada),
-::view-transition-new(project-media-lusiada) {
+::view-transition-old(project-media),
+::view-transition-new(project-media) {
   object-fit: cover;
   height: 100%;
+}
+
+/* Underlying posters for video slots to ensure immediate visual state */
+.media-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 1;
+  display: block;
+}
+.cyber .media-poster {
+  object-fit: contain;
+}
+.save-state .media-poster {
+  object-fit: contain;
+}
+.lusiada .media-poster,
+.is-horizontal .lusiada .media-poster {
+  object-fit: contain;
+  mask-image: radial-gradient(ellipse 60% 55% at 52% 48%, #000 22%, transparent 68%);
+}
+.media video {
+  position: relative;
+  z-index: 2;
 }
 
 /* 2. EDITORIAL PROGRESS INDICATOR */

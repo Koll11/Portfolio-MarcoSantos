@@ -128,5 +128,92 @@
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+
+  // 4. Scoped View Transition Management & Lifecycle
+  function getProjectKey(str) {
+    if (!str) return null;
+    if (str.includes('nocturne.html') || str.includes('nocturne')) return 'nocturne';
+    if (str.includes('cyber.html') || str.includes('cyber')) return 'cyber';
+    if (str.includes('savestate.html') || str.includes('save-state')) return 'save-state';
+    if (str.includes('lusiada1.html') || str.includes('lusiada')) return 'lusiada';
+    return null;
+  }
+
+  function setTransitionTarget(key) {
+    document.querySelectorAll('[data-transition-active]').forEach(el => el.removeAttribute('data-transition-active'));
+    const world = document.getElementById(key);
+    if (world) {
+      world.setAttribute('data-transition-active', 'true');
+    }
+  }
+
+  function clearTransitionTarget() {
+    document.querySelectorAll('[data-transition-active]').forEach(el => el.removeAttribute('data-transition-active'));
+  }
+
+  // Pre-tag target on direct user clicks so names are attached before navigation snapshot
+  document.addEventListener('click', e => {
+    const link = e.target.closest('a[href$=".html"], [data-project-href]');
+    if (!link) return;
+    const href = link.getAttribute('href') || link.getAttribute('data-project-href');
+    const key = getProjectKey(href);
+    if (key) {
+      setTransitionTarget(key);
+      try { sessionStorage.setItem('activeTransitionProject', key); } catch (_) {}
+    }
+  }, { capture: true });
+
+  // Outgoing page swap: coordinate shared-element target with View Transition
+  window.addEventListener('pageswap', e => {
+    const targetUrl = e.activation?.entry?.url;
+    const key = getProjectKey(targetUrl);
+    if (key) {
+      setTransitionTarget(key);
+      try { sessionStorage.setItem('activeTransitionProject', key); } catch (_) {}
+    } else {
+      // Returning to homepage from a case study
+      const body = document.body;
+      const caseKey = body.classList.contains('nocturne-case') ? 'nocturne' :
+                      body.classList.contains('cyber-case') ? 'cyber' :
+                      body.classList.contains('save-case') ? 'save-state' :
+                      body.classList.contains('lusiada-case') ? 'lusiada' : null;
+      if (caseKey) {
+        try { sessionStorage.setItem('activeTransitionProject', caseKey); } catch (_) {}
+      }
+    }
+  });
+
+  // Incoming page reveal: attach transition name on homepage destination card
+  window.addEventListener('pagereveal', e => {
+    let activeKey = null;
+    try { activeKey = sessionStorage.getItem('activeTransitionProject'); } catch (_) {}
+    if (activeKey) {
+      setTransitionTarget(activeKey);
+    }
+    if (e.viewTransition) {
+      e.viewTransition.finished.finally(() => {
+        clearTransitionTarget();
+        try { sessionStorage.removeItem('activeTransitionProject'); } catch (_) {}
+      });
+    } else {
+      setTimeout(clearTransitionTarget, 320);
+    }
+  });
+
+  // bfcache & restore cleanup
+  window.addEventListener('pageshow', e => {
+    if (e.persisted) {
+      clearTransitionTarget();
+      try { sessionStorage.removeItem('activeTransitionProject'); } catch (_) {}
+      cursor.classList.remove('is-active');
+      isVisible = false;
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    cursor.classList.remove('is-active');
+    isVisible = false;
+  });
 })();
+
 

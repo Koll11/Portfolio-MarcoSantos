@@ -2,27 +2,23 @@
 .hero { display:block; padding:var(--header-height) 0 0; min-height:0; position:relative; --hero-progress:0; }
 .hero.is-scroll-hero { height:165svh; }
 .hero-scene { position:sticky; top:var(--header-height); height:calc(100svh - var(--header-height)); min-height:570px; isolation:isolate; }
-.hero .hero-kicker { position:absolute; top:4%; left:var(--gutter); right:var(--gutter); margin:0; z-index:3; }
-.hero h1, html[data-type='tight'] .hero h1 { position:absolute; z-index:3; top:10%; left:var(--gutter); right:var(--gutter); margin:0; padding:0; border:0; font-size:12.2vw; font-weight:500; line-height:.9; letter-spacing:-.055em; pointer-events:none; }
+.hero .hero-kicker { position:absolute; top:clamp(14px,2.2svh,24px); left:var(--gutter); right:var(--gutter); margin:0; z-index:12; }
+.hero h1, html[data-type='tight'] .hero h1 { position:absolute; z-index:10; top:clamp(36px,5.8svh,54px); left:var(--gutter); right:var(--gutter); margin:0; padding:0; border:0; font-size:clamp(52px,11.4vw,200px); font-weight:500; line-height:.88; letter-spacing:-.05em; pointer-events:none; }
 .hero h1,.hero .hero-kicker,.hero .hero-statement { opacity:clamp(0,calc(1 - var(--hero-progress)*1.7),1); transform:translateY(calc(var(--hero-progress)*-45px)); }
-.hero-cinema { position:absolute; overflow:hidden; left:calc(var(--gutter)*(1 - var(--hero-progress))); right:calc(var(--gutter)*(1 - var(--hero-progress))); top:calc(28%*(1 - var(--hero-progress))); bottom:calc(6%*(1 - var(--hero-progress))); background:#191919; }
-.hero-frame { position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease; filter:grayscale(1); }
-.hero-frame.is-current { opacity:1; }
-
-.hero-frame img { width:100%; height:100%; object-fit:cover; object-position:center 42%; }
-.hero-frame:first-child img { object-position:center 28%; }
-.hero-frame--cyber { background:center/cover url('../media/cyber.webp'); }
-.hero-frame--cyber::before { content:''; position:absolute; inset:0; background:#0009; backdrop-filter:blur(18px); }
-.hero-frame--cyber img { position:relative; object-fit:contain; }
-.hero-cinema::after { content:''; position:absolute; inset:0; background:linear-gradient(0deg,#000e,#0008 30%,transparent 70%),linear-gradient(180deg,#0003,transparent 30%); pointer-events:none; }
-.hero .hero-statement { position:absolute; z-index:3; left:calc(var(--gutter) + 26px); bottom:18%; max-width:550px; font-size:clamp(25px,3vw,46px); font-weight:500; letter-spacing:-.025em; line-height:1.08; text-shadow:0 2px 24px #000; pointer-events:none; }
+.hero-cinema { position:absolute; overflow:hidden; z-index:1; left:calc(var(--gutter)*(1 - var(--hero-progress))); right:calc(var(--gutter)*(1 - var(--hero-progress))); top:calc(18%*(1 - var(--hero-progress))); bottom:calc(5.5%*(1 - var(--hero-progress))); background:#111110; }
+.hero-poster,
+.hero-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block; filter:grayscale(1); }
+.hero-poster { z-index:1; }
+.hero-video { z-index:2; opacity:0; transition:opacity .8s ease; }
+.hero-video.is-playing { opacity:1; }
+.hero-cinema::after { content:''; position:absolute; inset:0; z-index:3; background:linear-gradient(180deg,#111110 0%,rgba(17,17,16,0.85) 35px,rgba(17,17,16,0.25) 75px,transparent 125px),linear-gradient(0deg,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.4) 28%,transparent 60%); pointer-events:none; }
+.hero .hero-statement { position:absolute; z-index:4; left:calc(var(--gutter) + 26px); bottom:18%; max-width:550px; font-size:clamp(25px,3vw,46px); font-weight:500; letter-spacing:-.025em; line-height:1.08; text-shadow:0 2px 24px #000; pointer-events:none; }
 .cinema-caption { position:absolute; z-index:4; bottom:22px; left:26px; right:26px; display:flex; gap:20px; align-items:center; justify-content:space-between; font-size:9px; text-transform:uppercase; letter-spacing:.1em; color:#eeeae2; }
 .cinema-controls { display:flex; align-items:center; gap:24px; }
 .cinema-controls[hidden] { display:none; }
-.cinema-index { display:flex; gap:10px; }
-.cinema-controls button { background:none; font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:10px 4px; min-height:36px; }
-.cinema-index button { border-bottom:1px solid transparent; opacity:.6; }
-.cinema-index button[aria-pressed='true'] { border-color:currentColor; opacity:1; }
+.cinema-controls button { background:none; border:none; border-bottom:1px solid rgba(238,234,226,0.4); color:inherit; font-family:inherit; font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:6px 0; min-height:30px; cursor:pointer; opacity:.75; transition:opacity .2s ease, border-color .2s ease; }
+.cinema-controls button:hover,
+.cinema-controls button:focus-visible { opacity:1; border-color:#eeeae2; }
 .hero .hero-base { position:absolute; left:var(--gutter); right:var(--gutter); bottom:0; height:6%; margin:0; z-index:5; }
 .hero .hero-base .text-link { font-size:9px; padding:6px 0; }
 .hero .hero-base > .eyebrow { font-size:8px; }
@@ -30,11 +26,11 @@
 .is-scroll-hero .hero-base:focus-within { opacity:1; background:var(--background); }
 @media (max-width:600px) {
   .hero-scene { min-height:640px; }
-  .hero .hero-kicker { top:3%; gap:20px; }
+  .hero .hero-kicker { top:16px; gap:20px; }
   .hero .hero-kicker .eyebrow { font-size:8px; }
-  .hero h1,html[data-type='tight'] .hero h1 { top:10%; font-size:19vw; white-space:normal; }
+  .hero h1,html[data-type='tight'] .hero h1 { top:46px; font-size:16.5vw; line-height:.9; white-space:normal; }
   .hero h1 span { display:block; }
-  .hero-cinema { top:calc(29%*(1 - var(--hero-progress))); }
+  .hero-cinema { top:calc(23%*(1 - var(--hero-progress))); bottom:calc(6%*(1 - var(--hero-progress))); }
   .hero .hero-statement { left:calc(var(--gutter) + 16px); right:calc(var(--gutter) + 16px); bottom:24%; font-size:26px; }
   .cinema-caption { left:16px; right:16px; bottom:14px; flex-direction:column; align-items:flex-start; gap:7px; font-size:8px; }
   .cinema-controls { width:100%; justify-content:space-between; gap:10px; }
@@ -42,10 +38,12 @@
 }
 @media (max-height:650px) and (min-width:601px) {
   .hero-scene { min-height:480px; }
-  .hero h1,html[data-type='tight'] .hero h1 { font-size:11vw; }
+  .hero .hero-kicker { top:12px; }
+  .hero h1,html[data-type='tight'] .hero h1 { top:30px; font-size:10.5vw; }
+  .hero-cinema { top:calc(18%*(1 - var(--hero-progress))); bottom:calc(5%*(1 - var(--hero-progress))); }
 }
 @media (prefers-reduced-motion:reduce) {
-  .hero-frame { transition:none; }
+  .hero-video { display:none; }
 }
 /* Pin spacing is managed by ScrollTrigger, not a second CSS scroll range. */
 .hero.is-scroll-hero{height:auto}
